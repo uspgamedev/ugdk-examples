@@ -1,0 +1,4 @@
+[submodule "externals/ugdk"]
+	path = externals/ugdk
+	url = git://github.com/uspgamedev/ugdk
+	branch = dev
