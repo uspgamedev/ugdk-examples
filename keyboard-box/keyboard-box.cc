@@ -7,6 +7,7 @@
 #include <ugdk/graphic/vertexdata.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/structure/vertex.h>
+#include <ugdk/ui/drawable/texturedrectangle.h>
 
 using namespace ugdk;
 
@@ -23,14 +24,8 @@ class Rectangle {
   public:
     Rectangle() 
       : velocity_(500.0)
-      , vertexdata_(4, sizeof(structure::VertexXYUV), true)
-    {
-        graphic::VertexData::Mapper mapper(vertexdata_);
-        mapper.Get<structure::VertexXYUV>(0)->set_xyuv(          0.0f,           0.0f, 0.0f, 0.0f);
-        mapper.Get<structure::VertexXYUV>(1)->set_xyuv(          0.0f, RECTANGLE_SIZE, 0.0f, 1.0f);
-        mapper.Get<structure::VertexXYUV>(2)->set_xyuv(RECTANGLE_SIZE,           0.0f, 1.0f, 0.0f);
-        mapper.Get<structure::VertexXYUV>(3)->set_xyuv(RECTANGLE_SIZE, RECTANGLE_SIZE, 1.0f, 1.0f);
-    }
+      , drawable_(new ui::TexturedRectangle(graphic::manager()->white_texture(), math::Vector2D(RECTANGLE_SIZE, RECTANGLE_SIZE)))
+    {}
 
     void Update(double dt) {
         auto manager = input::manager();
@@ -59,18 +54,14 @@ class Rectangle {
 
     void Render(graphic::Canvas& canvas) const {
         canvas.PushAndCompose(graphic::Geometry(position_));
-        canvas.SendVertexData(vertexdata_, graphic::VertexType::VERTEX, offsetof(structure::VertexXYUV, x));
-        canvas.SendVertexData(vertexdata_, graphic::VertexType::TEXTURE, offsetof(structure::VertexXYUV, u));
-        auto unit = graphic::manager()->ReserveTextureUnit(graphic::manager()->white_texture());
-        canvas.SendUniform("drawable_texture", unit);
-        canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
+        drawable_->Draw(canvas);
         canvas.PopGeometry();
     }
 
   private:
     double velocity_;
     math::Vector2D position_;
-    graphic::VertexData vertexdata_;
+    std::unique_ptr<ui::TexturedRectangle> drawable_;
 };
 
 int main(int argc, char* argv[]) {
