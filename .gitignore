@@ -1,0 +1,42 @@
+*~
+.*.swp
+!CMakeLists.txt
+Makefile
+/ipch
+/Win32
+/x64
+/lib
+/Release
+/Debug
+*.deb
+*.a
+*.log
+*.cache
+
+# Windows binary files
+*.dll
+*.exe
+*.pdb
+*.exp
+*.lib
+
+# Visual Studio projects and files
+*.dir
+*.filters
+*.opensdf
+*.sln
+*.vcxproj
+*.suo
+*.ilk
+*.user
+*.sdf
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+install_manifest.txt
+CTestTestfile.cmake
