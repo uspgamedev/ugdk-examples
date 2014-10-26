@@ -1,11 +1,9 @@
 ﻿#include <ugdk/system/engine.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/input/events.h>
-#include <ugdk/graphic/geometry.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/text/module.h>
 #include <ugdk/text/label.h>
-#include <ugdk/text/textbox.h>
 
 #include <string>
 #include <memory>
@@ -24,18 +22,18 @@ int main(int argc, char* argv[]) {
     config.base_path = EXAMPLE_LOCATION "/content/"; 
     system::Initialize(config);
 
-    text::manager()->AddFont("default", "epgyosho.ttf", 30);
+    text::manager()->AddFont("default", "epgyosho.ttf", 40);
 
     auto scene = ugdk::MakeUnique<ugdk::action::Scene>();
     scene->event_handler().AddListener(QuitOnEscape);
     {
-        auto label = std::make_shared<text::Label>(ugdk::system::GetFileContents("hello.txt"), text::manager()->GetFont("default"));
-        auto box = std::shared_ptr<text::TextBox>(text::manager()->GetTextFromFile("touhou.txt", "default"));
+        auto label = std::make_shared<text::Label>("Hello World!",
+                                                   text::manager()->GetFont("default"));
+        label->set_hotspot(ui::HookPoint::CENTER);
 
         scene->set_render_function([=](graphic::Canvas& canvas) {
+            canvas.PushAndCompose(canvas.size() * 0.5);
             label->Draw(canvas);
-            canvas.PushAndCompose(graphic::Geometry(math::Vector2D(0, label->height() + 50)));
-            box->Draw(canvas);
             canvas.PopGeometry();
         });
     }
