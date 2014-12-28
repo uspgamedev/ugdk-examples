@@ -7,6 +7,7 @@
 #include <ugdk/graphic/vertexdata.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/structure/vertex.h>
+#include <ugdk/system/compatibility.h>
 #include <ugdk/ui/drawable/texturedrectangle.h>
 
 using namespace ugdk;

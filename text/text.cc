@@ -4,6 +4,7 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/text/module.h>
 #include <ugdk/text/label.h>
+#include <ugdk/system/compatibility.h>
 
 #include <string>
 #include <memory>

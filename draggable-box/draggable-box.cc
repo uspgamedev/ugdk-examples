@@ -4,6 +4,7 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
+#include <ugdk/system/compatibility.h>
 #include <ugdk/ui/drawable/texturedrectangle.h>
 
 #include <memory>
