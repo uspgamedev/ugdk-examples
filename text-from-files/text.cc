@@ -6,6 +6,9 @@
 #include <ugdk/text/module.h>
 #include <ugdk/text/label.h>
 #include <ugdk/text/textbox.h>
+#include <ugdk/system/compatibility.h>
+#include <ugdk/filesystem/module.h>
+#include <ugdk/filesystem/file.h>
 
 #include <string>
 #include <memory>
@@ -29,7 +32,8 @@ int main(int argc, char* argv[]) {
     auto scene = ugdk::MakeUnique<ugdk::action::Scene>();
     scene->event_handler().AddListener(QuitOnEscape);
     {
-        auto label = std::make_shared<text::Label>(ugdk::system::GetFileContents("hello.txt"), text::manager()->GetFont("default"));
+        auto file = ugdk::filesystem::manager()->OpenFile("hello.txt");
+        auto label = std::make_shared<text::Label>(file->GetContents(), text::manager()->GetFont("default"));
         auto box = std::shared_ptr<text::TextBox>(text::manager()->GetTextFromFile("touhou.txt", "default"));
 
         scene->set_render_function([=](graphic::Canvas& canvas) {
