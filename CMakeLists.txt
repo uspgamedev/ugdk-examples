@@ -20,6 +20,7 @@ add_subdirectory(blank-window)
 add_subdirectory(draggable-box)
 add_subdirectory(keyboard-box)
 add_subdirectory(joystick-box)
+add_subdirectory(joystick-display)
 add_subdirectory(text)
 add_subdirectory(text-from-files)
 
