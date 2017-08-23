@@ -13,7 +13,7 @@ endif()
 add_subdirectory(externals/ugdk)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-    add_definitions(-std=gnu++0x)
+    add_definitions(-std=c++14)
 endif()
 
 add_subdirectory(blank-window)
