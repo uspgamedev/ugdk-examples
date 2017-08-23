@@ -3,6 +3,7 @@
 #include <ugdk/action/scene.h>
 #include <ugdk/input/events.h>
 #include <ugdk/system/compatibility.h>
+#include <ugdk/graphic/canvas.h>
 
 #include <memory>
 
@@ -19,6 +20,9 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
 
     ourscene->event_handler().AddListener(listener);
+    ourscene->set_render_function([] (graphic::Canvas& canvas) {
+
+    });
 
     system::PushScene(std::move(ourscene));
 
