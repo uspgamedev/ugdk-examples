@@ -5,6 +5,8 @@
 #include <ugdk/desktop/module.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
+#include <ugdk/graphic/opengl.h>
+#include <ugdk/structure/color.h>
 #include <ugdk/system/compatibility.h>
 #include <ugdk/ui/drawable/texturedrectangle.h>
 
@@ -41,12 +43,13 @@ int main(int argc, char *argv[]) {
     scene->event_handler().AddListener(listener2);
     scene->event_handler().AddListener<input::MouseMotionEvent>(listener);
     scene->set_render_function([rect, &box_position](graphic::Canvas& canvas) {
+        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+        canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
         math::Vector2D canvas_position = box_position.Scale(canvas.size());
         canvas.PushAndCompose(math::Geometry(canvas_position));
         rect->Draw(canvas);
         canvas.PopGeometry();
     });
-
 
     system::PushScene(std::move(scene));
     system::Run();
