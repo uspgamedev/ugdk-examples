@@ -23,7 +23,12 @@ int main(int argc, char* argv[]) {
     if (!graphic::Initialize(std::make_unique<graphic::Manager>(),
                              desktop::manager().primary_window(), math::Vector2D(800, 600)))
         std::cout << "Deu ruim\n";
-    system::FunctionListener<input::KeyPressedEvent> listener(QuitOnEscape);
+    system::FunctionListener<input::KeyPressedEvent> listener(
+        [] (const ugdk::input::KeyPressedEvent& ev) {
+            if (ev.scancode == ugdk::input::Scancode::ESCAPE)
+                ugdk::system::CurrentScene().Finish();
+        }
+    );
 
     auto ourscene = std::make_unique<action::Scene>();
 
