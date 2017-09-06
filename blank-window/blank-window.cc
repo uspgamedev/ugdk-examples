@@ -8,16 +8,17 @@
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
+#include <ugdk/math/integer2D.h>
 
 #include <iostream>
 #include <memory>
 
 int main(int argc, char* argv[]) {
     using namespace ugdk;
-    system::Initialize();
-    if (!graphic::Initialize(std::make_unique<graphic::Manager>(),
-                             desktop::manager().primary_window(), math::Vector2D(800, 600)))
-        std::cout << "Deu ruim\n";
+    system::Configuration config;
+    config.canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size = math::Integer2D(1280, 720);
+    system::Initialize(config);
 
     system::FunctionListener<input::KeyPressedEvent> listener(
         [] (const ugdk::input::KeyPressedEvent& ev) {
