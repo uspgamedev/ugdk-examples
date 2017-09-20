@@ -5,9 +5,9 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/vertexdata.h>
-#include <ugdk/graphic/opengl.h>
 #include <ugdk/structure/color.h>
 #include <ugdk/structure/types.h>
 #include <ugdk/system/compatibility.h>
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
         canvas.SendVertexData(vertex_data, graphic::VertexType::VERTEX, 0, 2);
         canvas.SendVertexData(vertex_data, graphic::VertexType::TEXTURE, 2 * sizeof(F32), 2);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
 
         canvas.PopGeometry();
     });
