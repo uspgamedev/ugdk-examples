@@ -61,6 +61,16 @@ int main(int argc, char *argv[]) {
         std::move(graphic::VertexData(4u, sizeof(VertexXYUV), false))
     };
 
+    // Map box vertices
+    {
+        graphic::VertexData::Mapper mapper(box.vtx, false);
+        mapper.Get<VertexXYUV>(0u) = {.0f,          .0f,        .0f, .0f};
+        mapper.Get<VertexXYUV>(1u) = {.0f,          BOX_SIZE.y, .0f, .1f};
+        mapper.Get<VertexXYUV>(2u) = {BOX_SIZE.x,   .0f,        .1f, .0f};
+        mapper.Get<VertexXYUV>(3u) = {BOX_SIZE.x,   BOX_SIZE.y, .1f, .1f};
+    }
+
+    // Box drag event
     system::FunctionListener<input::MouseMotionEvent> box_listener([&box](const input::MouseMotionEvent& ev) {
         auto window = ev.window.lock();
         box.pos.x = double(ev.position.x) / window->size().x;
