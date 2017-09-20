@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
         math::Vector2D canvas_position = pos.Scale(canvas.size());
-        canvas.PushAndCompose(math::Geometry(canvas_position));
+        canvas.PushAndCompose(math::Geometry(canvas_position - BOX_SIZE/2));
 
         graphic::TextureUnit unit = graphic::manager().ReserveTextureUnit(texture);
         canvas.SendUniform("drawable_texture", unit);
