@@ -64,17 +64,18 @@ int main(int argc, char *argv[]) {
     // Map box vertices
     {
         graphic::VertexData::Mapper mapper(box.vtx, false);
-        mapper.Get<VertexXYUV>(0u) = {.0f,          .0f,        .0f, .0f};
-        mapper.Get<VertexXYUV>(1u) = {.0f,          BOX_SIZE.y, .0f, .1f};
-        mapper.Get<VertexXYUV>(2u) = {BOX_SIZE.x,   .0f,        .1f, .0f};
-        mapper.Get<VertexXYUV>(3u) = {BOX_SIZE.x,   BOX_SIZE.y, .1f, .1f};
+        F32 x = static_cast<F32>(BOX_SIZE.x);
+        F32 y = static_cast<F32>(BOX_SIZE.x);
+        mapper.Get<VertexXYUV>(0u) = {.0f, .0f, .0f, .0f};
+        mapper.Get<VertexXYUV>(1u) = {.0f, y,   .0f, .1f};
+        mapper.Get<VertexXYUV>(2u) = {x,   .0f, .1f, .0f};
+        mapper.Get<VertexXYUV>(3u) = {x,   y,   .1f, .1f};
     }
 
     // Box drag event
     system::FunctionListener<input::MouseMotionEvent> box_listener([&box](const input::MouseMotionEvent& ev) {
-        auto window = ev.window.lock();
-        box.pos.x = double(ev.position.x) / window->size().x;
-        box.pos.y = double(ev.position.y) / window->size().y;
+        box.pos.x = static_cast<double>(ev.position.x);
+        box.pos.y = static_cast<double>(ev.position.y);
     });
     scene->event_handler().AddListener<input::MouseMotionEvent>(box_listener);
 
@@ -86,8 +87,7 @@ int main(int argc, char *argv[]) {
 
         canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-        math::Vector2D canvas_position = pos.Scale(canvas.size());
-        canvas.PushAndCompose(math::Geometry(canvas_position - BOX_SIZE/2));
+        canvas.PushAndCompose(math::Geometry(pos - BOX_SIZE/2));
 
         graphic::TextureUnit unit = graphic::manager().ReserveTextureUnit(texture);
         canvas.SendUniform("drawable_texture", unit);
