@@ -22,9 +22,9 @@ void QuitOnEscape(const ugdk::input::KeyPressedEvent& ev) {
 
 int main(int argc, char* argv[]) {
 
-    /** UGDK initialization
-    /*  EXAMPLE_LOCATION is defined by CMake to be the full path to the directory
-    /*  that contains the source code for this example */
+    // UGDK initialization
+    // EXAMPLE_LOCATION is defined by CMake to be the full path to the directory
+    // that contains the source code for this example */
     system::Configuration config;
     config.base_path = EXAMPLE_LOCATION "/content/";
     config.canvas_size = Vector2D(1280, 720);
