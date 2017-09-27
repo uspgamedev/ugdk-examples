@@ -15,11 +15,6 @@
 using namespace ugdk;
 using math::Vector2D;
 
-void QuitOnEscape(const ugdk::input::KeyPressedEvent& ev) {
-    if (ev.scancode == ugdk::input::Scancode::ESCAPE)
-        ugdk::system::CurrentScene().Finish();
-}
-
 int main(int argc, char* argv[]) {
 
     // UGDK initialization
