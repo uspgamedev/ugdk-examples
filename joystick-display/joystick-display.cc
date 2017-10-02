@@ -30,6 +30,7 @@
 #include <memory>
 #include <iostream>
 #include <tuple>
+#include <vector>
 
 namespace {
 
@@ -37,6 +38,7 @@ using namespace ugdk;
 using math::Vector2D;
 using structure::Color;
 using std::shared_ptr;
+using std::vector;
 
 const double    SPEED = 500.0;
 
@@ -96,19 +98,45 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const Box& box) {
     return canvas;
 }
 
+struct Slider {
+    Box bg;
+    Box slider;
+    shared_ptr<text::Label> label;
+    double value;
+};
+
 struct JoystickDisplay {
     shared_ptr<input::Joystick> joystick;
     shared_ptr<text::Label> name;
     Box bg;
+    shared_ptr<text::Label> axes_label;
+    vector<Slider> axis_sliders;
 };
 
 void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
-    displays.emplace_back(JoystickDisplay({
+    JoystickDisplay joy = {
         joystick,
         std::make_shared<text::Label>(joystick->name(),
                                       text::manager().GetFont("default")),
-        makeBox(Vector2D(1000.0, 100.0), Color(0.1,0.1,0.1))
-    }));
+        makeBox(Vector2D(1000.0, 120.0), Color(0.1,0.1,0.1)),
+        nullptr,
+        vector<Slider>()
+    };
+    // Add axis sliders
+    if (joystick->NumAxes() > 0) {
+        joy.axes_label = std::make_shared<text::Label>("Axes", text::manager().GetFont("default"));
+        for (size_t i = 0; i < joystick->NumAxes(); ++i) {
+            Slider slider = {
+                makeBox(Vector2D(50.0, 10.0), Color(0.5, 0.5, 0.5)),
+                makeBox(Vector2D(5.0, 10.0), Color(0.0, 1.0, 0.0)),
+                std::make_shared<text::Label>(std::to_string(i),
+                                              text::manager().GetFont("default")),
+                0.0
+            };
+            joy.axis_sliders.emplace_back(std::move(slider));
+        }
+    }
+    displays.emplace_back(std::move(joy));
 }
 
 graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy) {
@@ -116,6 +144,28 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
     canvas << joy.bg;
     canvas.PushAndCompose(math::Geometry(Vector2D(5., 0.)));
     canvas << *joy.name;
+
+    double x_offset = 0.0;
+    if (joy.axes_label) {
+        canvas.PushAndCompose(Vector2D(x_offset + 5, 30.0));
+        canvas << *joy.axes_label;
+        for (const auto& slider : joy.axis_sliders) {
+            double width = slider.label->width();
+            canvas.PushAndCompose(Vector2D(x_offset, 60));
+            canvas << slider.bg;
+            canvas.PushAndCompose(Vector2D((1.0 + slider.value)*50.0/2.0 - 5.0/2.0, 0));
+            canvas << slider.slider;
+            canvas.PopGeometry();
+            canvas.PushAndCompose(Vector2D(50.0/2.0 - width/2.0, -30.0));
+            canvas << *slider.label;
+            canvas.PopGeometry();
+            canvas.PopGeometry();
+            x_offset += 50.0 + 20.0;
+        }
+        canvas.PopGeometry();
+        x_offset += 10.0;
+    }
+
     canvas.PopGeometry();
 
     return canvas;
@@ -162,7 +212,11 @@ int main() {
 
     // Update displays
     scene->AddTask([](double dt) {
-        // TODO
+        for (auto& joy : displays) {
+            for (size_t i = 0u; i < joy.joystick->NumAxes(); i++) {
+                joy.axis_sliders[i].value = joy.joystick->GetAxisStatus(i).Percentage();
+            }
+        }
     });
 
     scene->set_render_function([](graphic::Canvas& canvas) {
@@ -174,7 +228,7 @@ int main() {
 
         for (size_t i = 0; i < displays.size(); i++) {
             const JoystickDisplay &display = displays[i];
-            canvas.PushAndCompose(base + i * Vector2D(0.0, 115.0));
+            canvas.PushAndCompose(base + i * Vector2D(0.0, 120.0 + 15.0));
             canvas << display;
             canvas.PopGeometry();
         }
