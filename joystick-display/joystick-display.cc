@@ -105,37 +105,60 @@ struct Slider {
     double value;
 };
 
+struct Button {
+    Box bg;
+    shared_ptr<text::Label> label;
+};
+
 struct JoystickDisplay {
     shared_ptr<input::Joystick> joystick;
     shared_ptr<text::Label> name;
     Box bg;
     shared_ptr<text::Label> axes_label;
     vector<Slider> axis_sliders;
+    shared_ptr<text::Label> buttons_label;
+    vector<Button> buttons;
 };
 
 void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
+    auto *font = text::manager().GetFont("default");
     JoystickDisplay joy = {
         joystick,
         std::make_shared<text::Label>(joystick->name(),
-                                      text::manager().GetFont("default")),
+                                      font),
         makeBox(Vector2D(1000.0, 120.0), Color(0.1,0.1,0.1)),
         nullptr,
-        vector<Slider>()
+        vector<Slider>(),
+        nullptr,
+        vector<Button>()
     };
     // Add axis sliders
     if (joystick->NumAxes() > 0) {
-        joy.axes_label = std::make_shared<text::Label>("Axes", text::manager().GetFont("default"));
+        joy.axes_label = std::make_shared<text::Label>("Axes", font);
         for (size_t i = 0; i < joystick->NumAxes(); ++i) {
             Slider slider = {
                 makeBox(Vector2D(50.0, 10.0), Color(0.5, 0.5, 0.5)),
                 makeBox(Vector2D(5.0, 10.0), Color(0.0, 1.0, 0.0)),
                 std::make_shared<text::Label>(std::to_string(i),
-                                              text::manager().GetFont("default")),
+                                              font),
                 0.0
             };
             joy.axis_sliders.emplace_back(std::move(slider));
         }
     }
+    // Add buttons things
+    if (joystick->NumButtons() > 0) {
+        joy.buttons_label = std::make_shared<text::Label>("Buttons", 
+                                                          font);
+        for (size_t i = 0u; i < joystick->NumButtons(); i++) {
+            Button button = {
+                makeBox(Vector2D(20.0, 20.0), Color(0.5, 0.5, 0.5)),
+                std::make_shared<text::Label>(std::to_string(i), font)
+            };
+            joy.buttons.emplace_back(std::move(button));
+        }
+    }
+
     displays.emplace_back(std::move(joy));
 }
 
@@ -147,7 +170,7 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
 
     double x_offset = 0.0;
     if (joy.axes_label) {
-        canvas.PushAndCompose(Vector2D(x_offset + 5, 30.0));
+        canvas.PushAndCompose(Vector2D(5.0, 30.0));
         canvas << *joy.axes_label;
         for (const auto& slider : joy.axis_sliders) {
             double width = slider.bg.size.x;
@@ -166,9 +189,26 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
         canvas.PopGeometry();
         x_offset += 10.0;
     }
+    if (joy.buttons_label) {
+        canvas.PushAndCompose(Vector2D(x_offset + 5.0, 30));
+        canvas << *joy.buttons_label;
+        canvas.PopGeometry();
+        for (const auto& button : joy.buttons) {
+            canvas.PushAndCompose(Vector2D(x_offset, 90.0));
+            double width = button.bg.size.x;
+            double small_width = button.label->width();
+            canvas << button.bg;
+            canvas.PushAndCompose(Vector2D(width / 2.0 - small_width / 2.0, -30.0));
+            canvas << *button.label;
+            canvas.PopGeometry();
+            canvas.PopGeometry();
+            x_offset += width + 10;
+        }
+        x_offset += 10.0;
+    }
 
     canvas.PopGeometry();
-
+    
     return canvas;
 }
 
@@ -217,6 +257,11 @@ int main() {
             for (size_t i = 0u; i < joy.joystick->NumAxes(); i++) {
                 joy.axis_sliders[i].value = joy.joystick->GetAxisStatus(i).Percentage();
             }
+            for (size_t i = 0u; i< joy.joystick->NumButtons(); i++)
+                if (joy.joystick->IsDown(i))
+                    joy.buttons[i].bg.color = Color(0.0, 1.0, 0.0);
+                else 
+                    joy.buttons[i].bg.color = Color(0.5, 0.5, 0.5);
         }
     });
 
