@@ -150,17 +150,18 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
         canvas.PushAndCompose(Vector2D(x_offset + 5, 30.0));
         canvas << *joy.axes_label;
         for (const auto& slider : joy.axis_sliders) {
-            double width = slider.label->width();
+            double width = slider.bg.size.x;
+            double small_width = slider.slider.size.x;
             canvas.PushAndCompose(Vector2D(x_offset, 60));
             canvas << slider.bg;
-            canvas.PushAndCompose(Vector2D((1.0 + slider.value)*50.0/2.0 - 5.0/2.0, 0));
+            canvas.PushAndCompose(Vector2D(((1.0 + slider.value)*width - small_width)/2.0, 0));
             canvas << slider.slider;
             canvas.PopGeometry();
-            canvas.PushAndCompose(Vector2D(50.0/2.0 - width/2.0, -30.0));
+            canvas.PushAndCompose(Vector2D(width/2.0 - slider.label->width()/2.0, -30.0));
             canvas << *slider.label;
             canvas.PopGeometry();
             canvas.PopGeometry();
-            x_offset += 50.0 + 20.0;
+            x_offset += width + 20.0;
         }
         canvas.PopGeometry();
         x_offset += 10.0;
@@ -228,7 +229,7 @@ int main() {
 
         for (size_t i = 0; i < displays.size(); i++) {
             const JoystickDisplay &display = displays[i];
-            canvas.PushAndCompose(base + i * Vector2D(0.0, 120.0 + 15.0));
+            canvas.PushAndCompose(base + i * Vector2D(0.0, display.bg.size.y + 15.0));
             canvas << display;
             canvas.PopGeometry();
         }
