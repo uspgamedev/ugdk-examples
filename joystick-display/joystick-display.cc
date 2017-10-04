@@ -110,6 +110,13 @@ struct Button {
     shared_ptr<text::Label> label;
 };
 
+struct Hat {
+    Box bg;
+    Box slider;
+    Vector2D offset;
+    shared_ptr<text::Label> label;
+};
+
 struct JoystickDisplay {
     shared_ptr<input::Joystick> joystick;
     shared_ptr<text::Label> name;
@@ -118,6 +125,8 @@ struct JoystickDisplay {
     vector<Slider> axis_sliders;
     shared_ptr<text::Label> buttons_label;
     vector<Button> buttons;
+    shared_ptr<text::Label> hats_label;
+    vector<Hat> hats;
 };
 
 void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
@@ -126,11 +135,13 @@ void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
         joystick,
         std::make_shared<text::Label>(joystick->name(),
                                       font),
-        makeBox(Vector2D(1000.0, 120.0), Color(0.1,0.1,0.1)),
+        makeBox(Vector2D(1000.0, 130.0), Color(0.1,0.1,0.1)),
         nullptr,
         vector<Slider>(),
         nullptr,
-        vector<Button>()
+        vector<Button>(),
+        nullptr,
+        vector<Hat>()
     };
     // Add axis sliders
     if (joystick->NumAxes() > 0) {
@@ -156,6 +167,19 @@ void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
                 std::make_shared<text::Label>(std::to_string(i), font)
             };
             joy.buttons.emplace_back(std::move(button));
+        }
+    }
+    // Add hat slider
+    if (joystick->NumHats() > 0) {
+        joy.hats_label = std::make_shared<text::Label> ("Hats", font);
+        for (size_t i = 0u; i < joystick->NumHats(); i++) {
+            Hat hat = {
+                makeBox(Vector2D(30.0, 30.0), Color(0.5, 0.5, 0.5)),
+                makeBox(Vector2D(10.0, 10.0), Color(0.0, 1.0, 0.0)),                
+                Vector2D(),
+                std::make_shared<text::Label>(std::to_string(i), font)
+            };
+            joy.hats.emplace_back(std::move(hat));
         }
     }
 
@@ -203,6 +227,27 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
             canvas.PopGeometry();
             canvas.PopGeometry();
             x_offset += width + 10;
+        }
+        x_offset += 10.0;
+    }
+    if (joy.hats_label) {
+        canvas.PushAndCompose(Vector2D(x_offset + 5.0, 30.0));
+        canvas << *joy.hats_label;
+        canvas.PopGeometry();
+        for (const auto& hat : joy.hats) {
+            double side = hat.bg.size.x;
+            double small_side = hat.slider.size.x;
+            canvas.PushAndCompose(Vector2D(x_offset, 90.0));
+            canvas << hat.bg;
+            canvas.PushAndCompose(Vector2D(1.0, 1.0)*(side - small_side)/2 + hat.offset);
+            canvas << hat.slider;
+            canvas.PopGeometry();
+            canvas.PushAndCompose(Vector2D(side/2.0 - hat.label->width()/2.0, -30.0));
+            canvas << *hat.label;
+            canvas.PopGeometry();
+            canvas.PopGeometry();
+            x_offset += side + 20.0;
+            
         }
         x_offset += 10.0;
     }
@@ -262,6 +307,16 @@ int main() {
                     joy.buttons[i].bg.color = Color(0.0, 1.0, 0.0);
                 else 
                     joy.buttons[i].bg.color = Color(0.5, 0.5, 0.5);
+            for (size_t i = 0u; i < joy.joystick->NumHats(); i++) {
+                auto status = joy.joystick->GetHatStatus(i);
+                auto& offset = joy.hats[i].offset;
+                double size = joy.hats[i].bg.size.x;
+                offset = Vector2D();
+                if (status.HasLeft()) offset.x -= size / 3;
+                if (status.HasRight()) offset.x += size / 3;
+                if (status.HasUp()) offset.y -= size / 3;
+                if (status.HasDown()) offset.y += size / 3;
+            }
         }
     });
 
