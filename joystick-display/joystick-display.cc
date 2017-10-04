@@ -57,6 +57,35 @@ struct Box {
     graphic::VertexData vtx;
 };
 
+struct Slider {
+    Box bg;
+    Box slider;
+    shared_ptr<text::Label> label;
+};
+
+struct Button {
+    Box bg;
+    shared_ptr<text::Label> label;
+};
+
+struct Hat {
+    Box bg;
+    Box slider;
+    shared_ptr<text::Label> label;
+};
+
+struct JoystickDisplay {
+    shared_ptr<input::Joystick> joystick;
+    shared_ptr<text::Label> name;
+    Box bg;
+    shared_ptr<text::Label> axes_label;
+    vector<Slider> axis_sliders;
+    shared_ptr<text::Label> buttons_label;
+    vector<Button> buttons;
+    shared_ptr<text::Label> hats_label;
+    vector<Hat> hats;
+};
+
 Box makeBox(const Vector2D& size, const Color& color) {
     // Box data
     Box box = {
@@ -97,35 +126,6 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const Box& box) {
     
     return canvas;
 }
-
-struct Slider {
-    Box bg;
-    Box slider;
-    shared_ptr<text::Label> label;
-};
-
-struct Button {
-    Box bg;
-    shared_ptr<text::Label> label;
-};
-
-struct Hat {
-    Box bg;
-    Box slider;
-    shared_ptr<text::Label> label;
-};
-
-struct JoystickDisplay {
-    shared_ptr<input::Joystick> joystick;
-    shared_ptr<text::Label> name;
-    Box bg;
-    shared_ptr<text::Label> axes_label;
-    vector<Slider> axis_sliders;
-    shared_ptr<text::Label> buttons_label;
-    vector<Button> buttons;
-    shared_ptr<text::Label> hats_label;
-    vector<Hat> hats;
-};
 
 void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
     auto *font = text::manager().GetFont("default");
