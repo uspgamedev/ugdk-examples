@@ -102,7 +102,6 @@ struct Slider {
     Box bg;
     Box slider;
     shared_ptr<text::Label> label;
-    double value;
 };
 
 struct Button {
@@ -113,7 +112,6 @@ struct Button {
 struct Hat {
     Box bg;
     Box slider;
-    Vector2D offset;
     shared_ptr<text::Label> label;
 };
 
@@ -151,8 +149,7 @@ void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
                 makeBox(Vector2D(50.0, 10.0), Color(0.5, 0.5, 0.5)),
                 makeBox(Vector2D(5.0, 10.0), Color(0.0, 1.0, 0.0)),
                 std::make_shared<text::Label>(std::to_string(i),
-                                              font),
-                0.0
+                                              font)
             };
             joy.axis_sliders.emplace_back(std::move(slider));
         }
@@ -163,7 +160,7 @@ void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
                                                           font);
         for (size_t i = 0u; i < joystick->NumButtons(); i++) {
             Button button = {
-                makeBox(Vector2D(20.0, 20.0), Color(0.5, 0.5, 0.5)),
+                makeBox(Vector2D(20.0, 20.0), Color(1.0, 1.0, 1.0)),
                 std::make_shared<text::Label>(std::to_string(i), font)
             };
             joy.buttons.emplace_back(std::move(button));
@@ -175,8 +172,7 @@ void addJoystickDisplay(const shared_ptr<input::Joystick>& joystick) {
         for (size_t i = 0u; i < joystick->NumHats(); i++) {
             Hat hat = {
                 makeBox(Vector2D(30.0, 30.0), Color(0.5, 0.5, 0.5)),
-                makeBox(Vector2D(10.0, 10.0), Color(0.0, 1.0, 0.0)),                
-                Vector2D(),
+                makeBox(Vector2D(10.0, 10.0), Color(0.0, 1.0, 0.0)),
                 std::make_shared<text::Label>(std::to_string(i), font)
             };
             joy.hats.emplace_back(std::move(hat));
@@ -196,12 +192,14 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
     if (joy.axes_label) {
         canvas.PushAndCompose(Vector2D(5.0, 30.0));
         canvas << *joy.axes_label;
-        for (const auto& slider : joy.axis_sliders) {
+        for (size_t i = 0u; i < joy.axis_sliders.size(); i++) {
+            const auto& slider = joy.axis_sliders[i];
             double width = slider.bg.size.x;
             double small_width = slider.slider.size.x;
+            double value = joy.joystick->GetAxisStatus(i).Percentage();
             canvas.PushAndCompose(Vector2D(x_offset, 60));
             canvas << slider.bg;
-            canvas.PushAndCompose(Vector2D(((1.0 + slider.value)*width - small_width)/2.0, 0));
+            canvas.PushAndCompose(Vector2D(((1.0 + value)*width - small_width)/2.0, 0));
             canvas << slider.slider;
             canvas.PopGeometry();
             canvas.PushAndCompose(Vector2D(width/2.0 - slider.label->width()/2.0, -30.0));
@@ -217,11 +215,19 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
         canvas.PushAndCompose(Vector2D(x_offset + 5.0, 30));
         canvas << *joy.buttons_label;
         canvas.PopGeometry();
-        for (const auto& button : joy.buttons) {
-            canvas.PushAndCompose(Vector2D(x_offset, 90.0));
+        for (size_t i = 0u; i < joy.buttons.size(); i++) {
+            const auto& button = joy.buttons[i];
             double width = button.bg.size.x;
             double small_width = button.label->width();
+            Color color;
+            if (joy.joystick->IsDown(i))
+                color = Color(0.0, 1.0, 0.0);
+            else 
+                color = Color(0.5, 0.5, 0.5);
+            canvas.PushAndCompose(Vector2D(x_offset, 90.0));
+            canvas.PushAndCompose(color);
             canvas << button.bg;
+            canvas.PopVisualEffect();
             canvas.PushAndCompose(Vector2D(width / 2.0 - small_width / 2.0, -30.0));
             canvas << *button.label;
             canvas.PopGeometry();
@@ -234,12 +240,19 @@ graphic::Canvas& operator<<(graphic::Canvas& canvas, const JoystickDisplay& joy)
         canvas.PushAndCompose(Vector2D(x_offset + 5.0, 30.0));
         canvas << *joy.hats_label;
         canvas.PopGeometry();
-        for (const auto& hat : joy.hats) {
+        for (size_t i = 0u; i < joy.hats.size(); i++) {
+            const auto& hat = joy.hats[i];
+            auto status = joy.joystick->GetHatStatus(i);
             double side = hat.bg.size.x;
             double small_side = hat.slider.size.x;
+            Vector2D offset;
+            if (status.HasLeft()) offset.x -= side / 3;
+            if (status.HasRight()) offset.x += side / 3;
+            if (status.HasUp()) offset.y -= side / 3;
+            if (status.HasDown()) offset.y += side / 3;
             canvas.PushAndCompose(Vector2D(x_offset, 90.0));
             canvas << hat.bg;
-            canvas.PushAndCompose(Vector2D(1.0, 1.0)*(side - small_side)/2 + hat.offset);
+            canvas.PushAndCompose(Vector2D(1.0, 1.0)*(side - small_side)/2 + offset);
             canvas << hat.slider;
             canvas.PopGeometry();
             canvas.PushAndCompose(Vector2D(side/2.0 - hat.label->width()/2.0, -30.0));
@@ -295,30 +308,6 @@ int main() {
         }
     );
     scene->event_handler().AddListener(joystick_connection_listener);
-
-    // Update displays
-    scene->AddTask([](double dt) {
-        for (auto& joy : displays) {
-            for (size_t i = 0u; i < joy.joystick->NumAxes(); i++) {
-                joy.axis_sliders[i].value = joy.joystick->GetAxisStatus(i).Percentage();
-            }
-            for (size_t i = 0u; i< joy.joystick->NumButtons(); i++)
-                if (joy.joystick->IsDown(i))
-                    joy.buttons[i].bg.color = Color(0.0, 1.0, 0.0);
-                else 
-                    joy.buttons[i].bg.color = Color(0.5, 0.5, 0.5);
-            for (size_t i = 0u; i < joy.joystick->NumHats(); i++) {
-                auto status = joy.joystick->GetHatStatus(i);
-                auto& offset = joy.hats[i].offset;
-                double size = joy.hats[i].bg.size.x;
-                offset = Vector2D();
-                if (status.HasLeft()) offset.x -= size / 3;
-                if (status.HasRight()) offset.x += size / 3;
-                if (status.HasUp()) offset.y -= size / 3;
-                if (status.HasDown()) offset.y += size / 3;
-            }
-        }
-    });
 
     scene->set_render_function([](graphic::Canvas& canvas) {
         using namespace graphic;
