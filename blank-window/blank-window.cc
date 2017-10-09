@@ -16,8 +16,8 @@
 int main(int argc, char* argv[]) {
     using namespace ugdk;
     system::Configuration config;
-    config.canvas_size = math::Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     system::FunctionListener<input::KeyPressedEvent> listener(

@@ -278,8 +278,8 @@ int main() {
     // that contains the source code for this example */
     system::Configuration config;
     config.base_path = EXAMPLE_LOCATION "/content/";
-    config.canvas_size = Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     // Load font
