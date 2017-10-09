@@ -62,8 +62,8 @@ int main(int argc, char *argv[]) {
     // Box drag event
     system::FunctionListener<input::MouseMotionEvent> box_listener(
         [&box_position](const input::MouseMotionEvent& ev) {
-          box_position.x = static_cast<double>(ev.position.x);
-          box_position.y = static_cast<double>(ev.position.y);
+            box_position.x = static_cast<double>(ev.position.x);
+            box_position.y = static_cast<double>(ev.position.y);
         }
     );
     scene->event_handler().AddListener<input::MouseMotionEvent>(box_listener);
