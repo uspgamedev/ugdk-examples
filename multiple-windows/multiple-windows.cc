@@ -37,7 +37,18 @@ int main(int argc, char* argv[]) {
 
     ourscene->event_handler().AddListener(listener);
     ourscene->set_render_function([] (graphic::Canvas& canvas) {
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+
+        std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0);
+        std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1);
+
+        graphic::manager().AttachTo(win_small);
+        graphic::Canvas canvas_small = graphic::Canvas(graphic::manager().screen());
+        canvas_small.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+
+        graphic::manager().AttachTo(win_large);
+        graphic::Canvas canvas_large = graphic::Canvas(graphic::manager().screen());
+        canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+        
     });
 
     system::PushScene(std::move(ourscene));
