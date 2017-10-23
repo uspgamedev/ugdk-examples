@@ -34,22 +34,24 @@ int main(int argc, char* argv[]) {
     );
 
     auto ourscene = std::make_unique<action::Scene>();
-    std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0);
-    std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1);
-
+    
     ourscene->event_handler().AddListener(listener);
     ourscene->set_render_function([] (const std::vector<graphic::Canvas*>& canvases) {
-
         std::cout << "I HAVE " << canvases.size() << " CANVASES" << std::endl;;
 
-        auto &canvas_large = *canvases[0];
-        auto &canvas_small = *canvases[1];
-
-        graphic::manager().SetActiveScreen(0);
-        canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+        std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0).lock();
+        std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1).lock();
         
-        graphic::manager().SetActiveScreen(1);
-        canvas_small.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+        if (win_large) {
+            auto &canvas_large = *canvases[0];
+            graphic::manager().SetActiveScreen(0);
+            canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+        }
+        if (win_small) {
+            auto &canvas_small = *canvases[1];
+            graphic::manager().SetActiveScreen(1);
+            canvas_small.Clear(ugdk::structure::Color(0.5, 0.1, 0.7, 1));
+        }
     });
 
     system::PushScene(std::move(ourscene));
