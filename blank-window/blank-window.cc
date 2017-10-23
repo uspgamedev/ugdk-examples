@@ -10,6 +10,7 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/math/integer2D.h>
 
+#include <vector>
 #include <iostream>
 #include <memory>
 
@@ -30,8 +31,9 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
 
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function([] (graphic::Canvas& canvas) {
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+    ourscene->set_render_function([] (const std::vector<graphic::Canvas*>& canvases) {
+        auto &canvas = canvases[0];
+        canvas->Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
     });
 
     system::PushScene(std::move(ourscene));
