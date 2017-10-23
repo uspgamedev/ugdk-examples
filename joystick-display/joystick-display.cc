@@ -309,7 +309,9 @@ int main() {
     );
     scene->event_handler().AddListener(joystick_connection_listener);
 
-    scene->set_render_function([](graphic::Canvas& canvas) {
+    scene->set_render_function([](std::vector<graphic::Canvas*>& canvases) {
+        auto &canvas = *canvases[0];
+
         using namespace graphic;
         const Vector2D base(10.0, 10.0);
 

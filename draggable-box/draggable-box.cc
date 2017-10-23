@@ -13,6 +13,7 @@
 #include <ugdk/system/compatibility.h>
 
 #include <memory>
+#include <vector>
 #include <iostream>
 #include <tuple>
 
@@ -73,14 +74,18 @@ int main(int argc, char *argv[]) {
     }
 
     // Box drag event
-    system::FunctionListener<input::MouseMotionEvent> box_listener([&box](const input::MouseMotionEvent& ev) {
+    system::FunctionListener<input::MouseMotionEvent> box_listener([&box](
+                                                        const input::MouseMotionEvent& ev
+                                                                         ) {
         box.pos.x = static_cast<double>(ev.position.x);
         box.pos.y = static_cast<double>(ev.position.y);
     });
     scene->event_handler().AddListener<input::MouseMotionEvent>(box_listener);
 
     // Rendering
-    scene->set_render_function([&box](graphic::Canvas& canvas) {
+    scene->set_render_function([&box](std::vector<graphic::Canvas*>& canvases) {
+        auto &canvas = *canvases[0]; // Get the first, main, canvas.
+
         auto &pos = box.pos;
         auto &texture = box.tex;
         auto &vertex_data = box.vtx;

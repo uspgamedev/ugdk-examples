@@ -89,7 +89,9 @@ int main(int argc, char *argv[]) {
     });
 
     // Rendering
-    scene->set_render_function([&box](graphic::Canvas& canvas) {
+    scene->set_render_function([&box](std::vector<graphic::Canvas*>& canvases) {
+        auto &canvas = *canvases[0];
+
         auto &pos = box.pos;
         auto &texture = box.tex;
         auto &vertex_data = box.vtx;

@@ -45,7 +45,9 @@ int main(int argc, char* argv[]) {
         auto label = std::make_shared<text::Label>("Hello World!",
                                                    text::manager().GetFont("default"));
 
-        scene->set_render_function([=](graphic::Canvas& canvas) {
+        scene->set_render_function([=](std::vector<graphic::Canvas*>& canvases) {
+            auto &canvas = *canvases[0];
+
             using namespace graphic;
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
