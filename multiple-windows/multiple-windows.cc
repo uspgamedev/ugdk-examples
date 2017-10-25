@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0).lock();
         std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1).lock();
         
-        if (win_large) {            
+        if (win_large) {
             auto &canvas_large = *canvases[0];
             graphic::manager().SetActiveScreen(0);
             graphic::manager().UseCanvas(canvas_large);
