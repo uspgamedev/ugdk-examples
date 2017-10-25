@@ -84,26 +84,40 @@ int main(int argc, char *argv[]) {
 
     // Rendering
     scene->set_render_function([&box](std::vector<graphic::Canvas*>& canvases) {
-        auto &canvas = *canvases[0]; // Get the first, main, canvas.
-
         auto &pos = box.pos;
         auto &texture = box.tex;
         auto &vertex_data = box.vtx;
 
+        // Get the primary window
+        std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
+        
+        // Get a reference to the primary-window canvas
+        auto &canvas = *canvases[0];
+
+        // Set the current screen we are drawing on
+        graphic::manager().SetActiveScreen(0);
+
+        //Tell the engine we are using our canvas
+        graphic::manager().UseCanvas(canvas);  
+        
+        /* DOES ALL THE DRAWING */
         canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
         canvas.PushAndCompose(math::Geometry(pos - BOX_SIZE/2));
-
+        
         graphic::TextureUnit unit = graphic::manager().ReserveTextureUnit(texture);
         canvas.SendUniform("drawable_texture", unit);
-
+        
         canvas.SendVertexData(vertex_data, graphic::VertexType::VERTEX, 0, 2);
         canvas.SendVertexData(vertex_data, graphic::VertexType::TEXTURE, 2 * sizeof(F32), 2);
         canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
-
+        
         canvas.PopGeometry();
+        
+        // Show
+        window->Present();
     });
-
+    
     system::PushScene(std::move(scene));
     system::Run();
     system::Release();

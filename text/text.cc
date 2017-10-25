@@ -8,6 +8,8 @@
 #include <ugdk/text/label.h>
 #include <ugdk/system/compatibility.h>
 #include <ugdk/math/vector2D.h>
+#include <ugdk/desktop/module.h>
+#include <ugdk/desktop/window.h>
 
 #include <string>
 #include <memory>
@@ -46,9 +48,19 @@ int main(int argc, char* argv[]) {
                                                    text::manager().GetFont("default"));
 
         scene->set_render_function([=](std::vector<graphic::Canvas*>& canvases) {
-            auto &canvas = *canvases[0];
-
             using namespace graphic;
+
+            // Get the primary window
+            std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
+            
+            // Get a reference to the primary-window canvas
+            auto &canvas = *canvases[0];
+            
+            // Set the current screen we are drawing on
+            graphic::manager().SetActiveScreen(0);
+            
+            //Tell the engine we are using our canvas
+            graphic::manager().UseCanvas(canvas);
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
             canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
@@ -56,6 +68,8 @@ int main(int argc, char* argv[]) {
             canvas.PushAndCompose(canvas.size()/2.0 - label->size()/2.0);
             canvas << *label;
             canvas.PopGeometry();
+
+            window->Present();
         });
     }
     system::PushScene(std::move(scene));

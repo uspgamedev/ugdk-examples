@@ -5,6 +5,7 @@
 #include <ugdk/system/compatibility.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
+#include <ugdk/graphic/rendertarget.h>
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
@@ -37,20 +38,34 @@ int main(int argc, char* argv[]) {
     
     ourscene->event_handler().AddListener(listener);
     ourscene->set_render_function([] (const std::vector<graphic::Canvas*>& canvases) {
-        std::cout << "I HAVE " << canvases.size() << " CANVASES" << std::endl;;
 
         std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0).lock();
         std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1).lock();
         
         if (win_large) {
+            std::cout << "canvas 0 " << canvases[0] <<std::endl;
+            
             auto &canvas_large = *canvases[0];
             graphic::manager().SetActiveScreen(0);
+            graphic::manager().UseCanvas(canvas_large);
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+            
+            win_large->Present();
+        } else {
+            std::cout << "nao deu a large :(";
         }
+
         if (win_small) {
+            std::cout << "canvas 1 " << canvases[1] <<std::endl;
+        
             auto &canvas_small = *canvases[1];
             graphic::manager().SetActiveScreen(1);
+            graphic::manager().UseCanvas(canvas_small);
             canvas_small.Clear(ugdk::structure::Color(0.5, 0.1, 0.7, 1));
+
+            win_small->Present();            
+        } else {
+            std::cout << "nao deu a small :(";
         }
     });
 

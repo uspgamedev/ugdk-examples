@@ -90,7 +90,17 @@ int main(int argc, char *argv[]) {
 
     // Rendering
     scene->set_render_function([&box](std::vector<graphic::Canvas*>& canvases) {
+        // Get the primary window
+        std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
+        
+        // Get a reference to the primary-window canvas
         auto &canvas = *canvases[0];
+
+        // Set the current screen we are drawing on
+        graphic::manager().SetActiveScreen(0);
+
+        //Tell the engine we are using our canvas
+        graphic::manager().UseCanvas(canvas);  
 
         auto &pos = box.pos;
         auto &texture = box.tex;
@@ -108,6 +118,8 @@ int main(int argc, char *argv[]) {
         canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
 
         canvas.PopGeometry();
+
+        window->Present();
     });
 
     system::PushScene(std::move(scene));

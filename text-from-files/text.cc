@@ -11,6 +11,8 @@
 #include <ugdk/system/compatibility.h>
 #include <ugdk/filesystem/module.h>
 #include <ugdk/filesystem/file.h>
+#include <ugdk/desktop/module.h>
+#include <ugdk/desktop/window.h>
 
 #include <string>
 #include <memory>
@@ -51,7 +53,17 @@ int main(int argc, char* argv[]) {
                                                   "default"));
 
         scene->set_render_function([=](std::vector<graphic::Canvas*>& canvases) {
+            // Get the primary window
+            std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
+            
+            // Get a reference to the primary-window canvas
             auto &canvas = *canvases[0];
+            
+            // Set the current screen we are drawing on
+            graphic::manager().SetActiveScreen(0);
+            
+            //Tell the engine we are using our canvas
+            graphic::manager().UseCanvas(canvas);
             
             using namespace graphic;
 
@@ -62,6 +74,8 @@ int main(int argc, char* argv[]) {
             canvas.PushAndCompose(math::Vector2D(0, label->height() + 50));
             canvas << *box;
             canvas.PopGeometry();
+
+            window->Present();
         });
     }
     system::PushScene(std::move(scene));

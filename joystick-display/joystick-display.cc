@@ -309,11 +309,21 @@ int main() {
     );
     scene->event_handler().AddListener(joystick_connection_listener);
 
-    scene->set_render_function([](std::vector<graphic::Canvas*>& canvases) {
-        auto &canvas = *canvases[0];
-
+    scene->set_render_function([](std::vector<graphic::Canvas*>& canvases) {        
         using namespace graphic;
         const Vector2D base(10.0, 10.0);
+
+        // Get the primary window
+        std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
+        
+        // Get a reference to the primary-window canvas
+        auto &canvas = *canvases[0];
+
+        // Set the current screen we are drawing on
+        graphic::manager().SetActiveScreen(0);
+
+        //Tell the engine we are using our canvas
+        graphic::manager().UseCanvas(canvas);  
 
         canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
@@ -324,6 +334,7 @@ int main() {
             canvas << display;
             canvas.PopGeometry();
         }
+        window->Present();        
     });
     
     system::PushScene(std::move(scene));
