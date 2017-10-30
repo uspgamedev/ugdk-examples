@@ -37,28 +37,14 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
     
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function([] (const std::vector<graphic::Canvas*>& canvases) {
-
-        std::shared_ptr<desktop::Window> win_large = desktop::manager().window(0).lock();
-        std::shared_ptr<desktop::Window> win_small = desktop::manager().window(1).lock();
-        
-        if (win_large) {
-            auto &canvas_large = *canvases[0];
-            graphic::manager().SetActiveScreen(0);
-            graphic::manager().UseCanvas(canvas_large);
+    ourscene->set_render_function(0u,
+        [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-            
-            win_large->Present();
-        }
-        if (win_small) {
-            auto &canvas_small = *canvases[1];
-            graphic::manager().SetActiveScreen(1);
-            graphic::manager().UseCanvas(canvas_small);
-            canvas_small.Clear(ugdk::structure::Color(0.5, 0.1, 0.7, 1));
-
-            win_small->Present();            
-        }
-    });
+        });
+    ourscene->set_render_function(1u,
+        [] (graphic::Canvas& canvas_small) {
+            canvas_small.Clear(ugdk::structure::Color(0.3, 0.3, 0.3, 1));
+        });
 
     system::PushScene(std::move(ourscene));
 
