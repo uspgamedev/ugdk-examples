@@ -31,24 +31,16 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
 
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function([] (const std::vector<graphic::Canvas*>& canvases) {
-        
-        // Get the primary window
-        std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
-        
-        // Get a reference to the primary-window canvas
-        auto &canvas = *canvases[0];
-
-        // Set the current screen we are drawing on
-        graphic::manager().SetActiveScreen(0);
-
-        //Tell the engine we are using our canvas
-        graphic::manager().UseCanvas(canvas);  
-        
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-
-        window->Present();
-    });
+    ourscene->set_render_function(
+        0u,
+        std::function<void(graphic::Canvas&)>(
+            [](graphic::Canvas& canvas) {
+                canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                return;
+            }
+        )
+    ); 
+//
 
     system::PushScene(std::move(ourscene));
 
