@@ -7,10 +7,12 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/module.h>
-#include <ugdk/graphic/vertexdata.h>
+#include <ugdk/graphic/mesh.h>
 #include <ugdk/structure/color.h>
 #include <ugdk/structure/types.h>
 #include <ugdk/system/compatibility.h>
+
+#include <glm/vec2.hpp>
 
 #include <memory>
 #include <vector>
@@ -21,11 +23,14 @@ using namespace ugdk;
 
 namespace {
 
-const math::Vector2D BOX_SIZE(50.0, 50.0);
+const glm::vec2 BOX_SIZE = { 50.0, 50.0 };
 
 }
 
 int main(int argc, char *argv[]) {
+    
+    // Used namespaces
+    using namespace glm;
 
     // UGDK initialization
     system::Configuration config;
@@ -48,16 +53,14 @@ int main(int argc, char *argv[]) {
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
     F32 y = static_cast<F32>(BOX_SIZE.x);
-    Vector2D box_position;
-    graphic::Mesh box = (
-        graphic::DrawMode::TRIANGLE_STRIP(),
-        {
-            .0f, .0f,
-            .0f,   y,
-              x, .0f,
-              x,   y
-        }
-    );
+    vec2 box_position;
+    graphic::Mesh2D box(graphic::DrawMode::TRIANGLE_STRIP(), graphic::manager().white_texture());
+    box.Fill({
+        {.0f, .0f, .0f, .0f},
+        {.0f,   y, .0f, 1.f},
+        {  x, .0f, 1.f, 0.f},
+        {  x,   y, 1.f, 1.f}
+    });
 
     // Box drag event
     system::FunctionListener<input::MouseMotionEvent> box_listener(
@@ -74,8 +77,8 @@ int main(int argc, char *argv[]) {
             auto &pos = box_position;
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-            //canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-            canvas.PushAndCompose(math::Geometry(pos - BOX_SIZE/2));
+            canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+            canvas.PushAndCompose(math::Geometry(math::Vector2D(box_position - BOX_SIZE * 0.5f)));
 
             canvas << box;
 
