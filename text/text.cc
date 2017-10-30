@@ -1,42 +1,63 @@
-﻿#include <ugdk/system/engine.h>
+
+#include <ugdk/system/engine.h>
 #include <ugdk/action/scene.h>
 #include <ugdk/input/events.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/module.h>
 #include <ugdk/text/module.h>
 #include <ugdk/text/label.h>
 #include <ugdk/system/compatibility.h>
+#include <ugdk/math/vector2D.h>
+#include <ugdk/desktop/module.h>
+#include <ugdk/desktop/window.h>
 
 #include <string>
 #include <memory>
 
 using namespace ugdk;
-
-void QuitOnEscape(const ugdk::input::KeyPressedEvent& ev) {
-    if (ev.scancode == ugdk::input::Scancode::ESCAPE)
-        ugdk::system::CurrentScene().Finish();
-}
+using math::Vector2D;
 
 int main(int argc, char* argv[]) {
-    system::Configuration config;
+
+    // UGDK initialization
     // EXAMPLE_LOCATION is defined by CMake to be the full path to the directory
-    // that contains the source code for this example
-    config.base_path = EXAMPLE_LOCATION "/content/"; 
+    // that contains the source code for this example */
+    system::Configuration config;
+    config.base_path = EXAMPLE_LOCATION "/content/";
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
-    text::manager()->AddFont("default", "epgyosho.ttf", 40);
+    // Load font
+    text::manager().AddFont("default", "epgyosho.ttf", 40);
 
+    // Create scene
     auto scene = ugdk::MakeUnique<ugdk::action::Scene>();
-    scene->event_handler().AddListener(QuitOnEscape);
+
+    // Exit event
+    system::FunctionListener<input::KeyPressedEvent> exit_listener(
+        [] (const ugdk::input::KeyPressedEvent& ev) {
+            if (ev.scancode == ugdk::input::Scancode::ESCAPE)
+                ugdk::system::CurrentScene().Finish();
+        }
+    );
+    scene->event_handler().AddListener(exit_listener);
+
     {
         auto label = std::make_shared<text::Label>("Hello World!",
-                                                   text::manager()->GetFont("default"));
-        label->set_hotspot(ui::HookPoint::CENTER);
+                                                   text::manager().GetFont("default"));
 
-        scene->set_render_function([=](graphic::Canvas& canvas) {
-            canvas.PushAndCompose(canvas.size() * 0.5);
-            label->Draw(canvas);
-            canvas.PopGeometry();
-        });
+        scene->set_render_function(0u,
+            [=](graphic::Canvas& canvas) {
+                using namespace graphic;
+
+                canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+
+                canvas.PushAndCompose(canvas.size()/2.0 - label->size()/2.0);
+                canvas << *label;
+                canvas.PopGeometry();
+            });
     }
     system::PushScene(std::move(scene));
 

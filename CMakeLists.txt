@@ -12,9 +12,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/externals/ugdk/CMakeLists.txt")
 endif()
 add_subdirectory(externals/ugdk)
 
-if(CMAKE_COMPILER_IS_GNUCC)
-    add_definitions(-std=gnu++0x)
-endif()
+set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(blank-window)
 add_subdirectory(draggable-box)
@@ -23,4 +21,5 @@ add_subdirectory(joystick-box)
 add_subdirectory(joystick-display)
 add_subdirectory(text)
 add_subdirectory(text-from-files)
+add_subdirectory(multiple-windows)
 
