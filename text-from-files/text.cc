@@ -52,31 +52,18 @@ int main(int argc, char* argv[]) {
         auto box = std::shared_ptr<text::TextBox>(text::manager().GetTextFromFile("touhou.txt",
                                                   "default"));
 
-        scene->set_render_function([=](std::vector<graphic::Canvas*>& canvases) {
-            // Get the primary window
-            std::shared_ptr<desktop::Window> window = desktop::manager().window(0).lock();
-            
-            // Get a reference to the primary-window canvas
-            auto &canvas = *canvases[0];
-            
-            // Set the current screen we are drawing on
-            graphic::manager().SetActiveScreen(0);
-            
-            //Tell the engine we are using our canvas
-            graphic::manager().UseCanvas(canvas);
-            
-            using namespace graphic;
+        scene->set_render_function(0u,
+            [=](graphic::Canvas& canvas) {
+                using namespace graphic;
 
-            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-            canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+                canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
 
-            canvas << *label;
-            canvas.PushAndCompose(math::Vector2D(0, label->height() + 50));
-            canvas << *box;
-            canvas.PopGeometry();
-
-            window->Present();
-        });
+                canvas << *label;
+                canvas.PushAndCompose(math::Vector2D(0, label->height() + 50));
+                canvas << *box;
+                canvas.PopGeometry();
+            });
     }
     system::PushScene(std::move(scene));
 

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <memory>
 
+using namespace ugdk;
+
 int main(int argc, char* argv[]) {
     using namespace ugdk;
     system::Configuration config;
@@ -31,14 +33,9 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
 
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function(
-        0u,
-        std::function<void(graphic::Canvas&)>(
-            [](graphic::Canvas& canvas) {
-                canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-                return;
-            }
-        )
+    ourscene->set_render_function(0u,
+        [](graphic::Canvas& canvas)
+            {canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));}
     ); 
 //
 
