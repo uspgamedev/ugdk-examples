@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
-    F32 y = static_cast<F32>(BOX_SIZE.x);
+    F32 y = static_cast<F32>(BOX_SIZE.y);
     vec2 box_position;
     graphic::Mesh2D box(graphic::DrawMode::TRIANGLE_STRIP(), graphic::manager().white_texture());
     box.Fill({
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
             canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-            canvas.PushAndCompose(math::Geometry(math::Vector2D(box_position - BOX_SIZE * 0.5f)));
+            canvas.PushAndCompose(math::Geometry(box_position - BOX_SIZE * 0.5f));
 
             canvas << box;
 
