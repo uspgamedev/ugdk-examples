@@ -20,21 +20,19 @@
 #include <tuple>
 
 using namespace ugdk;
+using namespace glm;
 
 namespace {
 
-const glm::vec2 BOX_SIZE = { 50.0, 50.0 };
+const glm::dvec2 BOX_SIZE = { 50.0, 50.0 };
 
 }
 
 int main(int argc, char *argv[]) {
-    
-    // Used namespaces
-    using namespace glm;
 
     // UGDK initialization
     system::Configuration config;
-    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().canvas_size = dvec2(1280, 720);
     config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
@@ -53,7 +51,7 @@ int main(int argc, char *argv[]) {
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
     F32 y = static_cast<F32>(BOX_SIZE.y);
-    vec2 box_position;
+    dvec2 box_position;
     graphic::Mesh2D box(graphic::DrawMode::TRIANGLE_STRIP(), graphic::manager().white_texture());
     box.Fill({
         {.0f, .0f, .0f, .0f},
@@ -78,7 +76,7 @@ int main(int argc, char *argv[]) {
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
             canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-            canvas.PushAndCompose(math::Geometry(box_position - BOX_SIZE * 0.5f));
+            canvas.PushAndCompose(math::Geometry(box_position - BOX_SIZE * 0.5));
 
             canvas << box;
 

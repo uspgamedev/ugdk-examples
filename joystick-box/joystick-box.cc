@@ -37,8 +37,8 @@ using namespace ugdk;
 using namespace glm;
 using std::shared_ptr;
 
-const glm::vec2 BOX_SIZE = { 50.0f, 50.0f };
-const F32       SPEED = 500.0f;
+const glm::dvec2    BOX_SIZE = { 50.0f, 50.0f };
+const F64           SPEED = 500.0f;
 
 } // unnamed namespace
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     // UGDK initialization
     system::Configuration config;
-    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().canvas_size = dvec2(1280, 720);
     config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
 
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
-    F32 y = static_cast<F32>(BOX_SIZE.x);
-    vec2 box_position = {1280/2, 720/2};
+    F32 y = static_cast<F32>(BOX_SIZE.y);
+    dvec2 box_position = {1280/2, 720/2};
     graphic::Mesh2D box(graphic::DrawMode::TRIANGLE_STRIP(), graphic::manager().white_texture());
     box.Fill({
         {.0f, .0f, .0f, .0f},
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
             scene_ptr->AddTask([&box_position,joystick](double dt) {
                 double move_x = joystick->GetAxisStatus(0).Percentage();
                 double move_y = joystick->GetAxisStatus(1).Percentage();
-                box_position += vec2(move_x, move_y)*SPEED*static_cast<F32>(dt);
+                box_position += dvec2(move_x, move_y) * SPEED * dt;
             });
         }
     );
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
             canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-            canvas.PushAndCompose(math::Geometry(box_position - BOX_SIZE * 0.5f));
+            canvas.PushAndCompose(math::Geometry(box_position - BOX_SIZE * 0.5));
 
             canvas << box;
 
