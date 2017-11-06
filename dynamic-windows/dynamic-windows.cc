@@ -9,6 +9,7 @@
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
+#include <ugdk/desktop/windowsettings.h>
 #include <ugdk/math/integer2D.h>
 
 #include <iostream>
@@ -23,52 +24,51 @@ int main(int argc, char* argv[]) {
     system::Initialize(config);
     
     auto ourscene = std::make_unique<action::Scene>();
-    auto ptr      = ourscene.get();
 
     system::FunctionListener<input::KeyPressedEvent> quit_listener(
-        [] (const ugdk::input::KeyPressedEvent& ev) {
+        [] (const ugdk::input::KeyPressedEvent &ev) {
             if (ev.scancode == ugdk::input::Scancode::ESCAPE)
                 ugdk::system::CurrentScene().Finish();
         }
     );
 
-    system::FunctionListener<input::KeyPressedEvent> add_window_listener(
-        [] (const ugdk::input::KeyPressedEvent& ev) {
-            auto &scene   = ugdk::system::CurrentScene();
-            auto &manager = desktop::manager();
+    system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
+        [] (const ugdk::input::KeyReleasedEvent &ev) {
+            if (!(ev.scancode == ugdk::input::Scancode::Q))
+                return;
+            auto &dmanager = desktop::manager();
+            auto &gmanager = graphic::manager();
 
-            std::string title = std::string("window "+std::to_string(desktop::manager().num_windows()));
-            using desktop::WindowSettings;
-            if (ev.keycode == ugdk::input::Keycode::a) {
-                desktop::WindowSettings settings (
-                    WindowSettings(title
-                        , ""
-                        , math::Integer2D (1280/4, 720/4)
-                        , math::Vector2D (1280/4, 720/4)
-                        , false
-                        , true
-                ));
-                manager.CreateWindow(settings);
-                uint32_t index = manager.num_windows() - 1;
-                scene.set_render_function(index,
-                    [] (graphic::Canvas& canvas) {
-                        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-                    });
-            }
+            gmanager.DeregisterScreen(gmanager.num_screens()-1);
+            dmanager.DestroyWindow(dmanager.num_windows()-1);
+
+            if (!dmanager.num_windows())
+                ugdk::system::CurrentScene().Finish();
         }
     );
+    
+    system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
+        [] (const ugdk::input::KeyReleasedEvent &ev) {
+            if (!(ev.scancode == ugdk::input::Scancode::A))
+                return;
 
-    system::FunctionListener<input::KeyPressedEvent> close_window_listener(
-        [] (const ugdk::input::KeyPressedEvent& ev) {
-            auto &manager = desktop::manager();
-            auto &scene   = ugdk::system::CurrentScene();
-            if (!manager.num_windows())
-                ugdk::system::CurrentScene().Finish();
+            auto &scene  = ugdk::system::CurrentScene();           
+            auto index   = desktop::manager().num_windows();
+            auto &deskmanager = desktop::manager();            
+            auto &gphcmanager = graphic::manager();
+            
+            auto  settings = desktop::WindowSettings();
+            settings.title = "Window no. " + std::to_string(deskmanager.num_windows()); 
 
-            if (ev.keycode == ugdk::input::Keycode::q) {
-                manager.DestroyWindow(manager.num_windows()-1);
-                scene.remove_render_function(scene.num_functions()-1);
-            }
+            deskmanager.CreateWindow( settings );
+            deskmanager.window( deskmanager.num_windows()-1 );
+            gphcmanager.RegisterScreen( deskmanager.window(index) );
+
+            scene.set_render_function(index,
+                                        [](graphic::Canvas& canvas){
+                                            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                                        }
+                                     );
         }
     );
 
