@@ -1,0 +1,1 @@
+add_ugdk_executable(example-dynamic-windows dynamic-windows.cc)

@@ -1,0 +1,1 @@
+add_ugdk_executable(example-multiple-windows multiple-windows.cc)
