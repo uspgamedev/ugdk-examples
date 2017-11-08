@@ -39,7 +39,10 @@ int main(int argc, char* argv[]) {
             auto &dmanager = desktop::manager();
             auto &gmanager = graphic::manager();
 
-            gmanager.DeregisterScreen(gmanager.num_screens()-1);
+            uint32_t screen_index = gmanager.num_screens()-1;
+            
+            gmanager.UnregisterScreen(screen_index);
+            ugdk::system::CurrentScene().RemoveRenderFunction(screen_index);
             dmanager.DestroyWindow(dmanager.num_windows()-1);
 
             if (!dmanager.num_windows())
