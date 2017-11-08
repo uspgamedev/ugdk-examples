@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
 
     // UGDK initialization
     system::Configuration config;
-    config.canvas_size = Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     // Create scene
@@ -108,24 +108,25 @@ int main(int argc, char *argv[]) {
     scene->event_handler().AddListener(joystick_connection_listener);
 
     // Rendering
-    scene->set_render_function([&box](graphic::Canvas& canvas) {
-        auto &pos = box.pos;
-        auto &texture = box.tex;
-        auto &vertex_data = box.vtx;
+    scene->set_render_function(0u,
+        [&box](graphic::Canvas& canvas) {
+            auto &pos = box.pos;
+            auto &texture = box.tex;
+            auto &vertex_data = box.vtx;
+            
+            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+            canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+            canvas.PushAndCompose(math::Geometry(pos - BOX_SIZE/2));
 
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-        canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
-        canvas.PushAndCompose(math::Geometry(pos - BOX_SIZE/2));
+            graphic::TextureUnit unit = graphic::manager().ReserveTextureUnit(texture);
+            canvas.SendUniform("drawable_texture", unit);
 
-        graphic::TextureUnit unit = graphic::manager().ReserveTextureUnit(texture);
-        canvas.SendUniform("drawable_texture", unit);
+            canvas.SendVertexData(vertex_data, graphic::VertexType::VERTEX, 0, 2);
+            canvas.SendVertexData(vertex_data, graphic::VertexType::TEXTURE, 2 * sizeof(F32), 2);
+            canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
 
-        canvas.SendVertexData(vertex_data, graphic::VertexType::VERTEX, 0, 2);
-        canvas.SendVertexData(vertex_data, graphic::VertexType::TEXTURE, 2 * sizeof(F32), 2);
-        canvas.DrawArrays(graphic::DrawMode::TRIANGLE_STRIP(), 0, 4);
-
-        canvas.PopGeometry();
-    });
+            canvas.PopGeometry();
+        });
 
     system::PushScene(std::move(scene));
     system::Run();

@@ -278,8 +278,8 @@ int main() {
     // that contains the source code for this example */
     system::Configuration config;
     config.base_path = EXAMPLE_LOCATION "/content/";
-    config.canvas_size = Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     // Load font
@@ -309,20 +309,21 @@ int main() {
     );
     scene->event_handler().AddListener(joystick_connection_listener);
 
-    scene->set_render_function([](graphic::Canvas& canvas) {
-        using namespace graphic;
-        const Vector2D base(10.0, 10.0);
+    scene->set_render_function(0u,
+        [](graphic::Canvas& canvas) {        
+            using namespace graphic;
+            const Vector2D base(10.0, 10.0);
 
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-        canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+            canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
 
-        for (size_t i = 0; i < displays.size(); i++) {
-            const JoystickDisplay &display = displays[i];
-            canvas.PushAndCompose(base + i * Vector2D(0.0, display.bg.size.y + 15.0));
-            canvas << display;
-            canvas.PopGeometry();
-        }
-    });
+            for (size_t i = 0; i < displays.size(); i++) {
+                const JoystickDisplay &display = displays[i];
+                canvas.PushAndCompose(base + i * Vector2D(0.0, display.bg.size.y + 15.0));
+                canvas << display;
+                canvas.PopGeometry();
+            }
+        });
     
     system::PushScene(std::move(scene));
 

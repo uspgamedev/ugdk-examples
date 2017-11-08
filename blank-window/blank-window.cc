@@ -10,14 +10,17 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/math/integer2D.h>
 
+#include <vector>
 #include <iostream>
 #include <memory>
+
+using namespace ugdk;
 
 int main(int argc, char* argv[]) {
     using namespace ugdk;
     system::Configuration config;
-    config.canvas_size = math::Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     system::FunctionListener<input::KeyPressedEvent> listener(
@@ -30,9 +33,11 @@ int main(int argc, char* argv[]) {
     auto ourscene = std::make_unique<action::Scene>();
 
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function([] (graphic::Canvas& canvas) {
-        canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-    });
+    ourscene->set_render_function(0u,
+        [](graphic::Canvas& canvas)
+            {canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));}
+    ); 
+//
 
     system::PushScene(std::move(ourscene));
 

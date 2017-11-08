@@ -8,6 +8,8 @@
 #include <ugdk/text/label.h>
 #include <ugdk/system/compatibility.h>
 #include <ugdk/math/vector2D.h>
+#include <ugdk/desktop/module.h>
+#include <ugdk/desktop/window.h>
 
 #include <string>
 #include <memory>
@@ -22,8 +24,8 @@ int main(int argc, char* argv[]) {
     // that contains the source code for this example */
     system::Configuration config;
     config.base_path = EXAMPLE_LOCATION "/content/";
-    config.canvas_size = Vector2D(1280, 720);
-    config.windows_list.front().size = math::Integer2D(1280, 720);
+    config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
+    config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
     // Load font
@@ -45,16 +47,17 @@ int main(int argc, char* argv[]) {
         auto label = std::make_shared<text::Label>("Hello World!",
                                                    text::manager().GetFont("default"));
 
-        scene->set_render_function([=](graphic::Canvas& canvas) {
-            using namespace graphic;
+        scene->set_render_function(0u,
+            [&label](graphic::Canvas& canvas) {
+                using namespace graphic;
 
-            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-            canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
+                canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
 
-            canvas.PushAndCompose(canvas.size()/2.0 - label->size()/2.0);
-            canvas << *label;
-            canvas.PopGeometry();
-        });
+                canvas.PushAndCompose(canvas.size()/2.0 - label->size()/2.0);
+                canvas << *label;
+                canvas.PopGeometry();
+            });
     }
     system::PushScene(std::move(scene));
 
