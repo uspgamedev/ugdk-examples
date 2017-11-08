@@ -64,7 +64,6 @@ int main(int argc, char* argv[]) {
             settings.title = "Window no. " + std::to_string(deskmanager.num_windows()); 
 
             deskmanager.CreateWindow( settings );
-            deskmanager.window( deskmanager.num_windows()-1 );
             gphcmanager.RegisterScreen( deskmanager.window(index) );
 
             scene.set_render_function(index,
