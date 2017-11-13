@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
                                                    text::manager().GetFont("default"));
 
         scene->set_render_function(0u,
-            [&label](graphic::Canvas& canvas) {
+            [label](graphic::Canvas& canvas) {
                 using namespace graphic;
 
                 canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));

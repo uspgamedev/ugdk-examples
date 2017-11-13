@@ -80,9 +80,6 @@ int main(int argc, char *argv[]) {
     // Rendering
     scene->set_render_function(0u,
         [&box, &box_position](graphic::Canvas& canvas) {
-            auto &pos = box.pos;
-            auto &texture = box.tex;
-            auto &vertex_data = box.vtx;
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
             canvas.ChangeShaderProgram(graphic::manager().shaders().current_shader());
