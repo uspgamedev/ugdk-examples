@@ -2,6 +2,7 @@
 .*.swp
 !CMakeLists.txt
 Makefile
+/build
 /ipch
 /Win32
 /x64
