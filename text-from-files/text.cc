@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
                                                   "default"));
 
         scene->set_render_function(0u,
-            [&label,&box](graphic::Canvas& canvas) {
+            [label,box](graphic::Canvas& canvas) {
                 using namespace graphic;
 
                 canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
