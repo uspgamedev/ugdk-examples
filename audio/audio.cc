@@ -9,12 +9,19 @@
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
 #include <ugdk/math/integer2D.h>
+#include <ugdk/audio/module.h>
+#include <ugdk/audio/manager.h>
+#include <ugdk/audio/source.h>
+#include <ugdk/audio/sampler.h>
+#include <ugdk/structure/types.h>
 
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <cmath>
 
 using namespace ugdk;
+using namespace audio;
 
 int main(int argc, char* argv[]) {
     system::Configuration config;
@@ -36,7 +43,17 @@ int main(int argc, char* argv[]) {
         [](graphic::Canvas& canvas)
             {canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));}
     );
-//
+
+    auto sine_func = [](U32 t) {
+        return (float)sin((double)t/2.0);
+    };
+
+    std::shared_ptr<Source> source = audio::manager().LoadSource("source1");
+    std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine_func", 800000,
+                                                                    AudioFormat::MONO8,
+                                                                    440, sine_func);
+    source->QueueSampler(sampler.get());
+    source->Play();
 
     system::PushScene(std::move(ourscene));
 

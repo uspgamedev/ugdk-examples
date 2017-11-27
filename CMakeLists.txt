@@ -14,6 +14,7 @@ add_subdirectory(externals/ugdk)
 
 set(CMAKE_CXX_STANDARD 14)
 
+add_subdirectory(audio)
 add_subdirectory(blank-window)
 add_subdirectory(draggable-box)
 add_subdirectory(keyboard-box)
@@ -23,4 +24,3 @@ add_subdirectory(text)
 add_subdirectory(text-from-files)
 add_subdirectory(multiple-windows)
 add_subdirectory(dynamic-windows)
-
