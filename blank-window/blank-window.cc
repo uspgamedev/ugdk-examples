@@ -34,10 +34,8 @@ int main(int argc, char* argv[]) {
     auto &graphicman = graphic::manager();
     auto ourscene    = std::make_unique<action::Scene>();
 
-    // We register the screen (associated with the Primary Window) to the graphic manager
-    uint32_t screen_index = graphicman.RegisterScreen(desktopman.primary_window());
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
-    graphicman.target(screen_index)->MyRenderer()->AddStep(
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [](graphic::Canvas& canvas) {
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
