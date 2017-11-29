@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<Source> source = audio::manager().LoadSource("source1");
     std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine_func", 800000,
                                                                     AudioFormat::MONO8,
-                                                                    440, sine_func);
+                                                                    44100, sine_func);
     source->QueueSampler(sampler.get());
     source->Play();
 
