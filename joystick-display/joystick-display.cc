@@ -15,6 +15,7 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/graphic/canvas.h>
+#include <ugdk/graphic/rendertarget.h>
 #include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/mesh.h>
@@ -278,6 +279,8 @@ int main() {
 
     // Create scene
     auto scene = std::make_unique<ugdk::action::Scene>();
+    auto &graphicman = graphic::manager();
+    auto &desktopman = desktop::manager();
 
     // Exit event
     system::FunctionListener<input::KeyPressedEvent> exit_listener(
@@ -300,7 +303,7 @@ int main() {
     );
     scene->event_handler().AddListener(joystick_connection_listener);
 
-    scene->set_render_function(0u,
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [](graphic::Canvas& canvas) {        
             using namespace graphic;
             const dvec2 base(10.0, 10.0);

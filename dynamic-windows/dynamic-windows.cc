@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
     config.windows_list.front().size        = math::Integer2D(1280, 720);
 
     system::Initialize(config);
+    auto &graphicman = graphic::manager();
     
     auto ourscene = std::make_unique<action::Scene>();
 
@@ -31,6 +32,7 @@ int main(int argc, char* argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
+    ourscene->event_handler().AddListener(quit_listener);
 
     system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
         [] (const ugdk::input::KeyReleasedEvent &ev) {
@@ -49,39 +51,34 @@ int main(int argc, char* argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
+    ourscene->event_handler().AddListener(close_window_listener);
     
     system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
         [] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::A))
                 return;
 
-            auto &scene  = ugdk::system::CurrentScene();           
-            auto index   = desktop::manager().num_windows();
-            auto &deskmanager = desktop::manager();            
-            auto &gphcmanager = graphic::manager();
-            
+            auto gman = graphic::manager();
             auto  settings = desktop::WindowSettings();
-            settings.title = "Window no. " + std::to_string(deskmanager.num_windows()); 
+            settings.title = "New window"; 
 
-            deskmanager.CreateWindow( settings );
-            gphcmanager.RegisterScreen( deskmanager.window(index) );
+            auto target = gman.target(gman.RegisterScreen( desktop::manager().CreateWindow(settings)));
 
-            scene.set_render_function(index,
-                                        [](graphic::Canvas& canvas){
-                                            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-                                        }
-                                     );
+            auto screen = std::dynamic_pointer_cast<RenderScreen>(target.lock());
+            screen->MyRenderer()->AddStep(
+                [](graphic::Canvas& canvas){
+                    canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                });
         }
     );
+    ourscene->event_handler().AddListener(add_window_listener);
+    
 
     ourscene->set_render_function(0u,
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
     
-    ourscene->event_handler().AddListener(quit_listener);
-    ourscene->event_handler().AddListener(add_window_listener);
-    ourscene->event_handler().AddListener(close_window_listener);
 
     system::PushScene(std::move(ourscene));
 

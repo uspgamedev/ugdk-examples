@@ -26,6 +26,9 @@ int main(int argc, char* argv[]) {
     config.windows_list.back().title       = "I'm its little brother";
     
     system::Initialize(config);
+    auto &graphicman = graphic::manager();
+
+    auto ourscene = std::make_unique<action::Scene>();
 
     system::FunctionListener<input::KeyPressedEvent> listener(
         [] (const ugdk::input::KeyPressedEvent& ev) {
@@ -33,15 +36,14 @@ int main(int argc, char* argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
-
-    auto ourscene = std::make_unique<action::Scene>();
-    
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function(0u,
+
+    
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
-    ourscene->set_render_function(1u,
+    graphicman.target(1u)->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_small) {
             canvas_small.Clear(ugdk::structure::Color(0.3, 0.3, 0.3, 1));
         });

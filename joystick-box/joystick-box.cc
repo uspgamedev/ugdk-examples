@@ -16,6 +16,7 @@
 #include <ugdk/desktop/module.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/drawmode.h>
+#include <ugdk/graphic/rendertarget.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/vertexdata.h>
 #include <ugdk/graphic/mesh.h>
@@ -51,7 +52,9 @@ int main(int argc, char *argv[]) {
     system::Initialize(config);
 
     // Create scene
-    auto scene = std::make_unique<ugdk::action::Scene>();
+    auto &desktopman = desktop::manager();
+    auto &graphicman = graphic::manager();
+    auto ourscene    = std::make_unique<action::Scene>();
 
     // Exit event
     system::FunctionListener<input::KeyPressedEvent> exit_listener(
@@ -60,7 +63,7 @@ int main(int argc, char *argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
-    scene->event_handler().AddListener(exit_listener);
+    ourscene->event_handler().AddListener(exit_listener);
 
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
@@ -74,7 +77,7 @@ int main(int argc, char *argv[]) {
         {  x,   y, 1.f, 1.f}
     });
 
-    action::Scene *scene_ptr = scene.get();
+    action::Scene *scene_ptr = ourscene.get();
 
     // Register joystick
     // We don't check for the already connected joysticks at the moment because there's none:
@@ -93,10 +96,10 @@ int main(int argc, char *argv[]) {
             });
         }
     );
-    scene->event_handler().AddListener(joystick_connection_listener);
+    ourscene->event_handler().AddListener(joystick_connection_listener);
 
-    // Rendering
-    scene->set_render_function(0u,
+    // Rendering        
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [&box, &box_position](graphic::Canvas& canvas) {
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
@@ -108,7 +111,7 @@ int main(int argc, char *argv[]) {
             canvas.PopGeometry();
         });
 
-    system::PushScene(std::move(scene));
+    system::PushScene(std::move(ourscene));
     system::Run();
     system::Release();
     return 0;

@@ -8,6 +8,7 @@
 #include <ugdk/graphic/drawmode.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/mesh.h>
+#include <ugdk/graphic/rendertarget.h>
 #include <ugdk/structure/color.h>
 #include <ugdk/structure/types.h>
 #include <ugdk/system/compatibility.h>
@@ -35,18 +36,12 @@ int main(int argc, char *argv[]) {
     config.windows_list.front().canvas_size = dvec2(1280, 720);
     config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
+    
+    auto &desktopman = desktop::manager();
 
     // Create scene
-    auto scene = ugdk::MakeUnique<ugdk::action::Scene>();
-
-    // Exit event
-    system::FunctionListener<input::KeyPressedEvent> exit_listener(
-        [] (const ugdk::input::KeyPressedEvent& ev) {
-            if (ev.scancode == ugdk::input::Scancode::ESCAPE)
-                ugdk::system::CurrentScene().Finish();
-        }
-    );
-    scene->event_handler().AddListener(exit_listener);
+    auto &graphicman = graphic::manager();
+    auto ourscene    = std::make_unique<action::Scene>();
 
     // Box data
     F32 x = static_cast<F32>(BOX_SIZE.x);
@@ -60,17 +55,8 @@ int main(int argc, char *argv[]) {
         {  x,   y, 1.f, 1.f}
     });
 
-    // Box drag event
-    system::FunctionListener<input::MouseMotionEvent> box_listener(
-        [&box_position](const input::MouseMotionEvent& ev) {
-            box_position.x = static_cast<double>(ev.position.x);
-            box_position.y = static_cast<double>(ev.position.y);
-        }
-    );
-    scene->event_handler().AddListener<input::MouseMotionEvent>(box_listener);
-
-    // Rendering
-    scene->set_render_function(0u,
+    // And we access the RenderTarget's Renderer and add a step, which is a lambda
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [&box,&box_position](graphic::Canvas& canvas) {
             auto &pos = box_position;
 
@@ -82,8 +68,27 @@ int main(int argc, char *argv[]) {
 
             canvas.PopGeometry();
         });
+
+    // This is a listener for the ESC key press event, to quit out.
+    system::FunctionListener<input::KeyPressedEvent> esc_listener(
+        [] (const ugdk::input::KeyPressedEvent& ev) {
+            if (ev.scancode == ugdk::input::Scancode::ESCAPE)
+                ugdk::system::CurrentScene().Finish();
+        }
+    );
+    ourscene->event_handler().AddListener(esc_listener); 
+
+    // Box drag event
+    system::FunctionListener<input::MouseMotionEvent> box_listener(
+        [&box_position](const input::MouseMotionEvent& ev) {
+            box_position.x = static_cast<double>(ev.position.x);
+            box_position.y = static_cast<double>(ev.position.y);
+        }
+    );
+    ourscene->event_handler().AddListener<input::MouseMotionEvent>(box_listener);
     
-    system::PushScene(std::move(scene));
+    system::PushScene(std::move(ourscene));
+    
     system::Run();
     system::Release();
     return 0;

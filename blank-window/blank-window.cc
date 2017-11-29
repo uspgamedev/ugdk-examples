@@ -29,9 +29,8 @@ int main(int argc, char* argv[]) {
     window_conf.size        = math::Integer2D(1280, 720);
     
     system::Initialize(config);
-    
-    auto &desktopman = desktop::manager();
     auto &graphicman = graphic::manager();
+    
     auto ourscene    = std::make_unique<action::Scene>();
 
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
