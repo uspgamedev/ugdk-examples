@@ -45,11 +45,14 @@ int main(int argc, char* argv[]) {
     );
 
     auto sine_func = [](U32 t) {
-        return (float)sin((double)t/2.0);
+        U32 mod = t%100000;
+        if (mod < 50000)
+            return sin((double)t/2.0);
+        return sin((double)t/3.0);
     };
 
     std::shared_ptr<Source> source = audio::manager().LoadSource("source1");
-    std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine_func", 800000,
+    std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine", 800000,
                                                                     AudioFormat::MONO8,
                                                                     44100, sine_func);
     source->QueueSampler(sampler.get());
