@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     ourscene->event_handler().AddListener(joystick_connection_listener);
 
     // Rendering        
-    graphicman.target(0u)->MyRenderer()->AddStep(
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [&box, &box_position](graphic::Canvas& canvas) {
 
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));

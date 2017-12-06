@@ -303,7 +303,7 @@ int main() {
     );
     scene->event_handler().AddListener(joystick_connection_listener);
 
-    graphicman.target(0u)->MyRenderer()->AddStep(
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [](graphic::Canvas& canvas) {        
             using namespace graphic;
             const dvec2 base(10.0, 10.0);

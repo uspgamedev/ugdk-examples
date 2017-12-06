@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         auto box = std::shared_ptr<text::TextBox>(text::manager().GetTextFromFile("touhou.txt",
                                                   "default"));
 
-        graphicman.target(0u)->MyRenderer()->AddStep(
+        graphicman.default_target().lock()->MyRenderer()->AddStep(
             [label,box](graphic::Canvas& canvas) {
                 using namespace graphic;
 

@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         auto label = std::make_shared<text::Label>("Hello World!",
                                                    text::manager().GetFont("default"));
 
-        graphicman.target(0u)->MyRenderer()->AddStep(
+        graphicman.default_target().lock()->MyRenderer()->AddStep(
             [label](graphic::Canvas& canvas) {
                 using namespace graphic;
 

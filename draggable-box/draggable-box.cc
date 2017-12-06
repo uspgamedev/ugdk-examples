@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     });
 
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
-    graphicman.target(0u)->MyRenderer()->AddStep(
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [&box,&box_position](graphic::Canvas& canvas) {
             auto &pos = box_position;
 

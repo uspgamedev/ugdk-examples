@@ -6,6 +6,7 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/rendertarget.h>
+#include <ugdk/graphic/renderscreen.h>
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
@@ -33,20 +34,6 @@ int main(int argc, char* argv[]) {
         }
     );
     ourscene->event_handler().AddListener(quit_listener);
-
-    system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
-        [&graphicman] (const ugdk::input::KeyReleasedEvent &ev) {
-            if (!(ev.scancode == ugdk::input::Scancode::Q))
-                return;
-            uint32_t index = graphicman.num_targets();
-
-            graphicman.UnregisterTarget(index); //this already destroys the window
-
-            if (index == 1)
-                ugdk::system::CurrentScene().Finish();
-        }
-    );
-    ourscene->event_handler().AddListener(close_window_listener);
     
     system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
         [&graphicman] (const ugdk::input::KeyReleasedEvent &ev) {
@@ -54,13 +41,11 @@ int main(int argc, char* argv[]) {
                 return;
 
             auto settings = desktop::WindowSettings();
-                 settings.title = "New window"; 
+                 settings.title = "New window";
 
-            auto target = graphicman.target(graphicman.RegisterScreen(
-                desktop::manager().CreateWindow(settings)));
+            auto target = graphicman.RegisterScreen(desktop::manager().CreateWindow(settings));
 
-            //auto screen = std::dynamic_pointer_cast<graphic::RenderScreen>(target);
-            target->MyRenderer()->AddStep(
+            target.lock()->MyRenderer()->AddStep(
                 [](graphic::Canvas& canvas){
                     canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
                 });
@@ -69,7 +54,7 @@ int main(int argc, char* argv[]) {
     ourscene->event_handler().AddListener(add_window_listener);
     
 
-    graphicman.target(0u)->MyRenderer()->AddStep(
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });

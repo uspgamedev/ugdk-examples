@@ -6,6 +6,7 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/rendertarget.h>
+#include <ugdk/graphic/renderscreen.h>
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
@@ -38,16 +39,13 @@ int main(int argc, char* argv[]) {
     );
     ourscene->event_handler().AddListener(listener);
 
-    
-    graphicman.target(0u)->MyRenderer()->AddStep(
-        [] (graphic::Canvas& canvas_large) {
+    for (auto target : graphicman.targets()) {
+        target->MyRenderer()->AddStep(
+            [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
-    graphicman.target(1u)->MyRenderer()->AddStep(
-        [] (graphic::Canvas& canvas_small) {
-            canvas_small.Clear(ugdk::structure::Color(0.3, 0.3, 0.3, 1));
-        });
-
+    }
+    
     system::PushScene(std::move(ourscene));
 
     system::Run();
