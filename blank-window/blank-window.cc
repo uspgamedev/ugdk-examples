@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     auto ourscene    = std::make_unique<action::Scene>();
 
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
-    graphicman.target(0u)->MyRenderer()->AddStep(
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [](graphic::Canvas& canvas) {
             canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
