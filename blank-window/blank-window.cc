@@ -34,8 +34,6 @@ int main(int argc, char* argv[]) {
     
     auto ourscene    = std::make_unique<action::Scene>();
 
-    // We register the screen (associated with the Primary Window) to the graphic manager
-    graphicman.RegisterScreen(desktopman.primary_window());
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
     graphicman.target(0u)->MyRenderer()->AddStep(
         [](graphic::Canvas& canvas) {
