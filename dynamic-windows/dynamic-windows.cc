@@ -35,37 +35,32 @@ int main(int argc, char* argv[]) {
     ourscene->event_handler().AddListener(quit_listener);
 
     system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
-        [] (const ugdk::input::KeyReleasedEvent &ev) {
+        [&graphicman] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::Q))
                 return;
-            auto &dmanager = desktop::manager();
-            auto &gmanager = graphic::manager();
+            uint32_t index = graphicman.num_targets();
 
-            uint32_t screen_index = gmanager.num_screens()-1;
-            
-            gmanager.UnregisterScreen(screen_index);
-            ugdk::system::CurrentScene().RemoveRenderFunction(screen_index);
-            dmanager.DestroyWindow(dmanager.num_windows()-1);
+            graphicman.UnregisterTarget(index); //this already destroys the window
 
-            if (!dmanager.num_windows())
+            if (index == 1)
                 ugdk::system::CurrentScene().Finish();
         }
     );
     ourscene->event_handler().AddListener(close_window_listener);
     
     system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
-        [] (const ugdk::input::KeyReleasedEvent &ev) {
+        [&graphicman] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::A))
                 return;
 
-            auto gman = graphic::manager();
-            auto  settings = desktop::WindowSettings();
-            settings.title = "New window"; 
+            auto settings = desktop::WindowSettings();
+                 settings.title = "New window"; 
 
-            auto target = gman.target(gman.RegisterScreen( desktop::manager().CreateWindow(settings)));
+            auto target = graphicman.target(graphicman.RegisterScreen(
+                desktop::manager().CreateWindow(settings)));
 
-            auto screen = std::dynamic_pointer_cast<RenderScreen>(target.lock());
-            screen->MyRenderer()->AddStep(
+            //auto screen = std::dynamic_pointer_cast<graphic::RenderScreen>(target);
+            target->MyRenderer()->AddStep(
                 [](graphic::Canvas& canvas){
                     canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
                 });
@@ -74,7 +69,7 @@ int main(int argc, char* argv[]) {
     ourscene->event_handler().AddListener(add_window_listener);
     
 
-    ourscene->set_render_function(0u,
+    graphicman.target(0u)->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
