@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Source> source = audio::manager().LoadSource("source1");
     std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine", 800000,
-                                                                    AudioFormat::MONO8,
+                                                                    true, true,
                                                                     44100, sine_func);
     source->QueueSampler(sampler.get());
     source->Play();
