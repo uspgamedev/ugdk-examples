@@ -16,6 +16,9 @@
 #include <iostream>
 #include <memory>
 
+using std::vector;
+using std::weak_ptr;
+
 int main(int argc, char* argv[]) {
     using namespace ugdk;
     system::Configuration config;
@@ -24,6 +27,7 @@ int main(int argc, char* argv[]) {
 
     system::Initialize(config);
     auto &graphicman = graphic::manager();
+    vector<weak_ptr<graphic::RenderScreen>> windows;
     
     auto ourscene = std::make_unique<action::Scene>();
 
@@ -34,9 +38,25 @@ int main(int argc, char* argv[]) {
         }
     );
     ourscene->event_handler().AddListener(quit_listener);
+
+    system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
+        [&graphicman, &windows] (const ugdk::input::KeyReleasedEvent &ev) {
+            if (!(ev.scancode == ugdk::input::Scancode::Q))
+                return;
+            while (windows.size() > 0u) {
+                auto target = windows.back();
+                windows.pop_back();
+                if (!target.expired()) {
+                    graphicman.UnregisterTarget(target); //this already destroys the window
+                    break;
+                }
+            }
+        }
+    );
+    ourscene->event_handler().AddListener(close_window_listener);
     
     system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
-        [&graphicman] (const ugdk::input::KeyReleasedEvent &ev) {
+        [&graphicman, &windows] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::A))
                 return;
 
@@ -44,7 +64,6 @@ int main(int argc, char* argv[]) {
                  settings.title = "New window";
 
             auto target = graphicman.RegisterScreen(desktop::manager().CreateWindow(settings));
-
             target.lock()->MyRenderer()->AddStep(
                 [](graphic::Canvas& canvas){
                     canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
