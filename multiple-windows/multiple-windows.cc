@@ -42,15 +42,6 @@ int main(int argc, char* argv[]) {
     );
     ourscene->event_handler().AddListener(listener);
 
-<<<<<<< 091edda7f113318e205b0fa6f55d964ebf75a968
-    for (auto target : graphicman.targets()) {
-        target->MyRenderer()->AddStep(
-            [] (graphic::Canvas& canvas_large) {
-            canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-        });
-    }
-    
-=======
     
     graphicman.default_target().lock()->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
@@ -61,7 +52,6 @@ int main(int argc, char* argv[]) {
             canvas_small.Clear(ugdk::structure::Color(0.3, 0.3, 0.3, 1));
         });
 
->>>>>>> Update examples to non-indexed render targets
     system::PushScene(std::move(ourscene));
 
     system::Run();
