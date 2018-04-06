@@ -51,11 +51,12 @@ int main(int argc, char* argv[]) {
         return sin((double)t/3.0);
     };
 
-    std::shared_ptr<Source> source = audio::manager().LoadSource("source1");
+    std::shared_ptr<Source>  source  = audio::manager().LoadSource("source1");
     std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine", 800000,
                                                                     true, true,
                                                                     44100, sine_func);
-    source->QueueSampler(sampler.get());
+    source->set_volume(0.2);
+    source->set_sampler(sampler);
     source->Play();
 
     system::PushScene(std::move(ourscene));
