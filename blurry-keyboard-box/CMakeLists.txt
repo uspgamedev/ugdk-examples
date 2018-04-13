@@ -1,0 +1,1 @@
+add_ugdk_executable(example-blurry-keyboard-box blurry-keyboard-box.cc)
