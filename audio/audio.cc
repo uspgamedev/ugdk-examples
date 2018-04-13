@@ -10,6 +10,7 @@
 #include <ugdk/desktop/window.h>
 #include <ugdk/math/integer2D.h>
 #include <ugdk/audio/module.h>
+#include <ugdk/audio/sampleframe.h>
 #include <ugdk/audio/manager.h>
 #include <ugdk/audio/source.h>
 #include <ugdk/audio/sampler.h>
@@ -22,6 +23,16 @@
 
 using namespace ugdk;
 using namespace audio;
+
+/**
+  * + [ ] Multichannel SampleFrame
+  * + [ ] Multichannel SampleData
+  * + [ ] SpatialTrack
+  * + [ ] Sampler<params...>(in_tracks, out_tracks, processor)
+  * + [ ] StereoTrack
+  * + [ ] "OGG" Sampler
+  * + [ ] "WAV" Sampler
+  */
 
 int main(int argc, char* argv[]) {
     system::Configuration config;
@@ -44,11 +55,10 @@ int main(int argc, char* argv[]) {
             {canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));}
     );
 
-    auto sine_func = [](U32 t) {
-        U32 mod = t%100000;
-        if (mod < 50000)
-            return sin((double)t/2.0);
-        return sin((double)t/3.0);
+    auto sine_func = [](audio::SampleFrame frame) -> F64 {
+        F64 t = frame.time();
+        F64 d = 3.14159 * 2;
+        return sin(0.5 * t * d) * sin(440.0 * t * d);
     };
 
     std::shared_ptr<Source>  source  = audio::manager().LoadSource("source1");
