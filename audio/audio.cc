@@ -25,10 +25,10 @@ using namespace ugdk;
 using namespace audio;
 
 /**
-  * + [ ] Multichannel SampleFrame
-  * + [ ] Multichannel SampleData
+  * + [x] Multichannel SampleFrame
+  * + [x] Multichannel SampleData
+  * + [x] Sampler<params...>(out_tracks_num, processor)
   * + [ ] SpatialTrack
-  * + [ ] Sampler<params...>(in_tracks, out_tracks, processor)
   * + [ ] StereoTrack
   * + [ ] "OGG" Sampler
   * + [ ] "WAV" Sampler
@@ -55,16 +55,14 @@ int main(int argc, char* argv[]) {
             {canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));}
     );
 
-    auto sine_func = [](audio::SampleFrame frame) -> F64 {
-        F64 t = frame.time();
+    auto sine_func = [](SampleFrame* frame) {
+        F64 t = frame->time();
         F64 d = 3.14159 * 2;
-        return sin(0.5 * t * d) * sin(440.0 * t * d);
+        frame->set(sin(0.5 * t * d) * sin(440.0 * t * d));
     };
 
     std::shared_ptr<Source>  source  = audio::manager().LoadSource("source1");
-    std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine", 800000,
-                                                                    true, true,
-                                                                    44100, sine_func);
+    std::shared_ptr<Sampler> sampler = audio::manager().LoadSampler("sine", 44100, 1, sine_func);
     source->set_volume(0.2);
     source->set_sampler(sampler);
     source->Play();
