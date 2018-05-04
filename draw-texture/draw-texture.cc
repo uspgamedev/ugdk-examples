@@ -39,7 +39,7 @@ int main(int argc, char*argv[]) {
     
     auto &desktopman  = desktop::manager();
     auto &resourceman = resource::manager();
-    auto archimedes   = resourceman.GetContainer<graphic::GLTexture>()->Load("arquimedes.jpg", "img logo");
+    auto archimedes   = resourceman.GetContainer<graphic::GLTexture>()->Load("image.png", "img logo");
     
     // Create scene
     auto &graphicman = graphic::manager();
