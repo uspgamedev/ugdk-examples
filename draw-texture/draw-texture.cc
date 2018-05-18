@@ -39,7 +39,7 @@ int main(int argc, char*argv[]) {
     
     auto &desktopman  = desktop::manager();
     auto &resourceman = resource::manager();
-    auto archimedes   = resourceman.GetContainer<graphic::GLTexture>()->Load("image.png", "img logo");
+    auto archimedes   = resourceman.GetContainer<graphic::GLTexture>()->Load("arquimedes.png", "img logo");
     
     // Create scene
     auto &graphicman = graphic::manager();
@@ -49,9 +49,9 @@ int main(int argc, char*argv[]) {
     
     box.Fill({
         {0, 0, 0, 0},
-        {0, 1, 0, 1},
-        {1, 0, 1, 0},
-        {1, 1, 1, 1}});
+        {0, 100, 0, 1},
+        {100, 0, 1, 0},
+        {100, 100, 1, 1}});
 
     // And we access the RenderTarget's Renderer and add a step, which is a lambda
     graphicman.default_target().lock()->MyRenderer()->AddStep(
