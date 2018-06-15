@@ -3,6 +3,7 @@
 #include <ugdk/input/events.h>
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
+#include <ugdk/graphic/rendertarget.h>
 #include <ugdk/math/vector2D.h>
 #include <ugdk/text/module.h>
 #include <ugdk/text/label.h>
@@ -30,6 +31,8 @@ int main(int argc, char* argv[]) {
     config.windows_list.front().size        = math::Integer2D(1280, 720);
     system::Initialize(config);
 
+    auto &graphicman = graphic::manager();
+
     // Load font
     text::manager().AddFont("default", "epgyosho.ttf", 30);
 
@@ -52,7 +55,7 @@ int main(int argc, char* argv[]) {
         auto box = std::shared_ptr<text::TextBox>(text::manager().GetTextFromFile("touhou.txt",
                                                   "default"));
 
-        scene->set_render_function(0u,
+        graphicman.default_target().lock()->MyRenderer()->AddStep(
             [label,box](graphic::Canvas& canvas) {
                 using namespace graphic;
 

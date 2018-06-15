@@ -6,6 +6,7 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/rendertarget.h>
+#include <ugdk/graphic/renderscreen.h>
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
@@ -19,13 +20,19 @@ int main(int argc, char* argv[]) {
     system::Configuration config;
     config.windows_list.front().canvas_size = math::Vector2D(1280, 720);
     config.windows_list.front().size        = math::Integer2D(1280, 720);
-
-    config.windows_list.emplace_back();
-    config.windows_list.back().canvas_size = math::Vector2D (1280/4, 720/4);
-    config.windows_list.back().size        = math::Integer2D(1280/4, 720/4);
-    config.windows_list.back().title       = "I'm its little brother";
     
     system::Initialize(config);
+    auto &graphicman = graphic::manager();
+
+    auto second_window_settings = desktop::WindowSettings();
+    second_window_settings.canvas_size = math::Vector2D (1280/4, 720/4);
+    second_window_settings.size        = math::Integer2D(1280/4, 720/4);
+    second_window_settings.title       = "I'm its little brother";
+    auto second_target = graphicman.RegisterScreen(
+        desktop::manager().CreateWindow(second_window_settings)
+    );
+
+    auto ourscene = std::make_unique<action::Scene>();
 
     system::FunctionListener<input::KeyPressedEvent> listener(
         [] (const ugdk::input::KeyPressedEvent& ev) {
@@ -33,15 +40,14 @@ int main(int argc, char* argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
-
-    auto ourscene = std::make_unique<action::Scene>();
-    
     ourscene->event_handler().AddListener(listener);
-    ourscene->set_render_function(0u,
+
+    
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
-    ourscene->set_render_function(1u,
+    second_target.lock()->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_small) {
             canvas_small.Clear(ugdk::structure::Color(0.3, 0.3, 0.3, 1));
         });

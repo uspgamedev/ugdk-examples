@@ -23,4 +23,5 @@ add_subdirectory(text)
 add_subdirectory(text-from-files)
 add_subdirectory(multiple-windows)
 add_subdirectory(dynamic-windows)
-
+add_subdirectory(draw-texture)
+add_subdirectory(trailing-img)

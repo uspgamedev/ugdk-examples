@@ -6,6 +6,7 @@
 #include <ugdk/graphic/canvas.h>
 #include <ugdk/graphic/module.h>
 #include <ugdk/graphic/rendertarget.h>
+#include <ugdk/graphic/renderscreen.h>
 #include <ugdk/graphic/opengl.h>
 #include <ugdk/desktop/module.h>
 #include <ugdk/desktop/window.h>
@@ -15,6 +16,9 @@
 #include <iostream>
 #include <memory>
 
+using std::vector;
+using std::weak_ptr;
+
 int main(int argc, char* argv[]) {
     using namespace ugdk;
     system::Configuration config;
@@ -22,6 +26,8 @@ int main(int argc, char* argv[]) {
     config.windows_list.front().size        = math::Integer2D(1280, 720);
 
     system::Initialize(config);
+    auto &graphicman = graphic::manager();
+    vector<weak_ptr<graphic::RenderScreen>> windows;
     
     auto ourscene = std::make_unique<action::Scene>();
 
@@ -31,57 +37,47 @@ int main(int argc, char* argv[]) {
                 ugdk::system::CurrentScene().Finish();
         }
     );
+    ourscene->event_handler().AddListener(quit_listener);
 
     system::FunctionListener<input::KeyReleasedEvent> close_window_listener(
-        [] (const ugdk::input::KeyReleasedEvent &ev) {
+        [&graphicman, &windows] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::Q))
                 return;
-            auto &dmanager = desktop::manager();
-            auto &gmanager = graphic::manager();
-
-            uint32_t screen_index = gmanager.num_screens()-1;
-            
-            gmanager.UnregisterScreen(screen_index);
-            ugdk::system::CurrentScene().RemoveRenderFunction(screen_index);
-            dmanager.DestroyWindow(dmanager.num_windows()-1);
-
-            if (!dmanager.num_windows())
-                ugdk::system::CurrentScene().Finish();
+            while (windows.size() > 0u) {
+                auto target = windows.back();
+                windows.pop_back();
+                if (!target.expired()) {
+                    graphicman.UnregisterTarget(target); //this already destroys the window
+                    break;
+                }
+            }
         }
     );
+    ourscene->event_handler().AddListener(close_window_listener);
     
     system::FunctionListener<input::KeyReleasedEvent> add_window_listener(
-        [] (const ugdk::input::KeyReleasedEvent &ev) {
+        [&graphicman, &windows] (const ugdk::input::KeyReleasedEvent &ev) {
             if (!(ev.scancode == ugdk::input::Scancode::A))
                 return;
 
-            auto &scene  = ugdk::system::CurrentScene();           
-            auto index   = desktop::manager().num_windows();
-            auto &deskmanager = desktop::manager();            
-            auto &gphcmanager = graphic::manager();
-            
-            auto  settings = desktop::WindowSettings();
-            settings.title = "Window no. " + std::to_string(deskmanager.num_windows()); 
+            auto settings = desktop::WindowSettings();
+                 settings.title = "New window";
 
-            deskmanager.CreateWindow( settings );
-            gphcmanager.RegisterScreen( deskmanager.window(index) );
-
-            scene.set_render_function(index,
-                                        [](graphic::Canvas& canvas){
-                                            canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
-                                        }
-                                     );
+            auto target = graphicman.RegisterScreen(desktop::manager().CreateWindow(settings));
+            target.lock()->MyRenderer()->AddStep(
+                [](graphic::Canvas& canvas){
+                    canvas.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
+                });
         }
     );
+    ourscene->event_handler().AddListener(add_window_listener);
+    
 
-    ourscene->set_render_function(0u,
+    graphicman.default_target().lock()->MyRenderer()->AddStep(
         [] (graphic::Canvas& canvas_large) {
             canvas_large.Clear(ugdk::structure::Color(0.2, 0.2, 0.2, 1));
         });
     
-    ourscene->event_handler().AddListener(quit_listener);
-    ourscene->event_handler().AddListener(add_window_listener);
-    ourscene->event_handler().AddListener(close_window_listener);
 
     system::PushScene(std::move(ourscene));
 
